@@ -527,11 +527,12 @@ const userController = {
           email: founduser.email,
           _id: founduser._id,
           image: founduser.image,
-          isAmdin: founduser.isAdmin,
         };
       }
     }
-
+    res.status(code).send({
+      data: data,
+    });
    
   },
 
