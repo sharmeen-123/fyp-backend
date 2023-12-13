@@ -7,7 +7,9 @@ const otpGenerator = require("otp-generator");
 const mailService = require("../services/mailer");
 const crypto = require("crypto");
 const otp = require("../Template/Mail/otp");
-const verifyCompany = require("../Template/Mail/VerifyCompany")
+const verifyCompany = require("../Template/Mail/VerifyCompany");
+const { validate } = require("uuid");
+const rejectRequest = require("../Template/Mail/RejectCompanyRequest");
 
 // const { promisify } = require("util");
 // const catchAsync = require("../utils/catchAsync");
@@ -36,7 +38,7 @@ const userController = {
     // Find if the user already exists
     const emailExists = await User.findOne({
       email: user.email,
-      type: user.type
+      type: user.type,
     });
 
     if (emailExists) {
@@ -85,11 +87,65 @@ const userController = {
     });
   },
 
+  // const get verified companies
+  async getVerifiedCompanies(req, res) {
+    const companies = await User.find({
+      verified: true,
+    });
+
+    let users = [];
+    let sellers = 0;
+    let customers = 0;
+    companies.map((val) => {
+      if (val.type != "admin") {
+        users.push(val);
+      }
+      if (val.type == "company") {
+        sellers++;
+      } else if (val.type != "admin") {
+        customers++;
+      }
+    });
+    if (companies) {
+      res.status(200).send({
+        success: true,
+        data: users,
+        sellers,
+        customers,
+      });
+    } else {
+      res.status(404).send({
+        success: false,
+        error: "companies not found",
+      });
+    }
+  },
+
+  // const get verified companies
+  async getUnverifiedCompanies(req, res) {
+    const companies = await User.find({
+      verified: false,
+      type: "company",
+    });
+
+    if (companies) {
+      res.status(200).send({
+        success: true,
+        data: companies,
+      });
+    } else {
+      res.status(404).send({
+        success: false,
+        error: "companies not found",
+      });
+    }
+  },
+
   // resetPassword api
   async resetPassword(req, res) {
     let email = req.body.email;
     let password = req.body.password;
-    console.log(email, password)
+    console.log(email, password);
     let code = 400;
     let data = {
       success: false,
@@ -103,9 +159,9 @@ const userController = {
       data = {
         success: false,
         error: "Password must be atleast 8 characters",
-      }}
-      else{
-        const salt = await bcrypt.genSalt(10);
+      };
+    } else {
+      const salt = await bcrypt.genSalt(10);
       password = await bcrypt.hash(password, salt);
 
       const company = await User.findOneAndUpdate({ email }, { password })
@@ -123,10 +179,10 @@ const userController = {
             message: "email not found",
           };
         });
-      }
+    }
 
-      // Hash the password
-      
+    // Hash the password
+
     res.status(code).send({
       data: data,
     });
@@ -355,63 +411,153 @@ const userController = {
     }
   },
 
+  async updateProfile(req, res, next) {
+    const companyId = req.params.id;
+    const type = req.params.type
+    const {name, password, email, contact} = req.body
+
+   
+    try {
+      const upload = await User.findOneAndUpdate(
+        { _id: companyId,
+            type, },
+        {
+          name: fileBuffers, // Assuming 'documents' is an array field in your User model
+        },
+        { new: true } // Return the updated document
+      );
+
+      if (!upload) {
+        return res.status(404).send({
+          error: "Company not found",
+          success: false,
+        });
+      }
+
+      res.status(200).json({
+        data: upload,
+        success: true,
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).send({
+        error: "Internal server error",
+        success: false,
+      });
+    }
+  },
+
   // login api
   async login(req, res) {
     // const { error } = loginValidationSchema.validate(req.body);
-    let code = 404
+    let code = 404;
     let data = {
-      success:false,
-      error: "not logged in"
-    }
-   
-      const userData = req.body;
-      const user = new User(userData);
-      const founduser = await User.findOne({ email: userData.email,
-      type:userData.type });
+      success: false,
+      error: "not logged in",
+    };
 
-      console.log("found user",founduser)
+    const userData = req.body;
+    const user = new User(userData);
+    const founduser = await User.findOne({
+      email: userData.email,
+      type: userData.type,
+    });
 
-      if (!founduser) {
-        code = 404
+    console.log("found user", founduser);
+    const checkverified = await User.findOne({
+      email: userData.email,
+      type: userData.type,
+      verified: true,
+    });
+
+    if (!founduser) {
+      code = 404;
+      data = {
+        success: false,
+        error: "Email is Wrong",
+      };
+      res.status(code).send({
+        data,
+      });
+    } else if (!checkverified) {
+      code = 404;
+      data = {
+        success: false,
+        error: "User not Verified",
+      };
+      res.status(code).send({
+        data,
+      });
+    } else {
+      const validPass = await bcrypt.compare(
+        userData.password,
+        founduser.password
+      );
+
+      console.log("valid pass", validPass);
+      if (!validPass) {
+        code = 404;
         data = {
-      success:false,
-      error: "Email is Wrong"
-    }
+          success: false,
+          error: "Wrong Password",
+        };
+        res.status(code).send({
+          data,
+        });
       } else {
-        const validPass = await bcrypt.compare(
-          userData.password,
-          founduser.password
+        const token = jwt.sign(
+          { _id: founduser._id },
+          process.env.TOKEN_SECRET
         );
-
-        console.log("valid pass", validPass)
-        if (!validPass) {
-          code = 404
-          data = {
-            success:false,
-            error: "Wrong Password"
-          }
-        } else {
-          const token = jwt.sign(
-            { _id: founduser._id },
-            process.env.TOKEN_SECRET
-          );
-          code = 404
-    data = {
-      success:false,
-      message: "logged in successfully",
-      authToken: token,
-      name: founduser.name,
-      email: founduser.email,
-      _id: founduser._id,
-      image:founduser.image,
-      isAmdin: founduser.isAdmin,
-    }
-         
-        }
+        code = 200;
+        data = {
+          success: true,
+          message: "logged in successfully",
+          authToken: token,
+          name: founduser.name,
+          email: founduser.email,
+          _id: founduser._id,
+          image: founduser.image,
+          isAmdin: founduser.isAdmin,
+        };
       }
-    
+    }
+
+   
+  },
+
+  // getImage
+  async getImage(req, res) {
+    // const { error } = loginValidationSchema.validate(req.body);
+    let code = 404;
+    let data = {
+      success: false,
+      error: "image not found",
+    };
+
+    const _id = req.params.id;
+    const founduser = await User.findOne({ _id });
+
+    console.log("found user", founduser);
+
+    if (!founduser) {
+      code = 404;
+      data = {
+        success: false,
+        error: "Image not found",
+      };
+    } else {
+      code = 200;
+      data = {
+        success: true,
+        image: founduser.image,
+        name: founduser.name,
+        isAmdin: founduser.isAdmin,
+      };
+    }
+
     res.status(code).send({
-      data
+      data,
     });
   },
 
@@ -470,10 +616,9 @@ const userController = {
     });
   },
 
-  // send OTP
   async verifyCompany(req, res, next) {
-    const { email } = req.body;
-    console.log(email);
+    const { id } = req.body;
+    console.log(id);
     const new_otp = otpGenerator.generate(4, {
       upperCaseAlphabets: false,
       specialChars: false,
@@ -485,37 +630,111 @@ const userController = {
       error: "company not verified",
     };
 
+    try {
+      const user = await User.findOneAndUpdate(
+        { _id: id, type: "company" },
+        { verified: true },
+        { new: true }
+      );
 
-    const user = await User.findOneAndUpdate(
-      { email: email,
-        type: "company" }, // Change this condition based on your schema
-      {
-        verified:true
-      },
-      { new: true }
-    );
+      if (!user) {
+        code = 404;
+        data = {
+          success: false,
+          error: "User not found",
+        };
+      } else {
+        // Try sending the email
+        await mailService.sendEmail({
+          from: "fa20-bcs-088@isbstudent.comsats.edu.pk",
+          to: user.email,
+          subject: "Verification of Company",
+          html: verifyCompany(user.name),
+          attachments: [],
+        });
 
-    if (!user) {
-      code = 404;
+        console.log(new_otp);
+
+        code = 200;
+        data = {
+          success: true,
+          message: "User Verified!",
+        };
+      }
+    } catch (error) {
+      // Handle email sending errors
+      console.error("Error sending email:", error);
+
+      code = 500; // Internal Server Error
       data = {
         success: false,
-        error: "User not found",
+        error: "Error sending email",
       };
-    } else {
-      mailService.sendEmail({
-        from: "fa20-bcs-088@isbstudent.comsats.edu.pk",
-        to: user.email, // Ensure 'email' is the correct property name
-        subject: "Verification of Company",
-        html: verifyCompany(user.name), // Ensure 'name' is the correct property name
-        attachments: [],
-      });
+    }
 
-      console.log(new_otp);
+    res.status(code).json({
+      data: data,
+    });
+  },
 
-      code = 200;
+  async RejectCompanyRequest(req, res, next) {
+    const { id } = req.body;
+    console.log(id);
+    let code = 404;
+    let data = {
+      success: false,
+      error: "Company not rejected",
+    };
+
+    try {
+      // Find the user
+      const user = await User.findOne({ _id: id, type: "company" });
+
+      if (!user) {
+        code = 404;
+        data = {
+          success: false,
+          error: "User not found",
+        };
+      } else {
+        // Try sending the email
+        await mailService.sendEmail({
+          from: "fa20-bcs-088@isbstudent.comsats.edu.pk",
+          to: user.email,
+          subject: "Verification of Company",
+          html: rejectRequest(user.name),
+          attachments: [],
+        });
+
+        // Delete the user
+        const userDelete = await User.findOneAndDelete({
+          _id: id,
+          type: "company",
+        });
+
+        if (userDelete) {
+          code = 200;
+          data = {
+            success: true,
+            message: "User Rejected!",
+          };
+        } else {
+          // If user deletion fails
+          code = 500;
+          data = {
+            success: false,
+            error: "Error deleting user",
+          };
+        }
+      }
+    } catch (error) {
+      // Handle errors, including email sending errors
+      console.error("Error:", error);
+
+      code = 500; // Internal Server Error
       data = {
-        success: true,
-        message: "User Verified!",
+        success: false,
+        error: "Internal Server Error",
       };
     }
 

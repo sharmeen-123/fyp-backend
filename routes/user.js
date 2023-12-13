@@ -15,6 +15,11 @@ userRouter.put("/sendOtp", userController.sendOTP);
 userRouter.put("/verifyOtp", userController.verifyOtp);
 userRouter.put("/resetPassword", userController.resetPassword);
 userRouter.put("/verifyCompany", userController.verifyCompany);
-userRouter.get("/login", userController.login);
+userRouter.put("/rejectCompany", userController.RejectCompanyRequest);
+userRouter.put("/login", userController.login);
+userRouter.get("/getVerifiedCompanies", userController.getVerifiedCompanies);
+userRouter.get("/getUnverifiedCompanies", userController.getUnverifiedCompanies);
+userRouter.get("/getImage/:id", userController.getImage);
+
 
 module.exports =  userRouter;
