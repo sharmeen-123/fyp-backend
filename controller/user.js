@@ -411,42 +411,51 @@ const userController = {
     }
   },
 
-  async updateProfile(req, res, next) {
-    const companyId = req.params.id;
-    const type = req.params.type
-    const {name, password, email, contact} = req.body
+   // ----------------- api to update user ----------------- 
+   async updateUser(req, res) {
+    
+      let id = req.params.id;
+      let updatedUser = req.body;
 
-   
-    try {
-      const upload = await User.findOneAndUpdate(
-        { _id: companyId,
-            type, },
-        {
-          name: fileBuffers, // Assuming 'documents' is an array field in your User model
-        },
-        { new: true } // Return the updated document
-      );
-
-      if (!upload) {
-        return res.status(404).send({
-          error: "Company not found",
-          success: false,
+        // update user
+        let update;
+        if(updatedUser.password){
+          const salt = await bcrypt.genSalt(10);
+            updatedUser.password = await bcrypt.hash(updatedUser.password, salt);
+            console.log("password", updatedUser.password);
+            console.log("id", id);
+          update = await User.findOneAndUpdate(
+            {_id : id},
+            {
+              name:updatedUser.name,
+              password: updatedUser.password,
+                email: updatedUser.email,  
+                phone: updatedUser.phone,
+                location: updatedUser.location,
+            }
+        )}else{
+          update = await User.findOneAndUpdate(
+            {_id : id},
+            {
+              name:updatedUser.name,
+                email: updatedUser.email,  
+                phone: updatedUser.phone,
+                location: updatedUser.location,
+            }
+        )
+        }
+      if (!update){
+        console.log("error")
+        res.status(400).send("Error");
+      }
+     
+      else{
+        res.status(200).send({
+          data: "data updated successfully",
         });
       }
-
-      res.status(200).json({
-        data: upload,
-        success: true,
-      });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).send({
-        error: "Internal server error",
-        success: false,
-      });
-    }
+     
   },
-
   // login api
   async login(req, res) {
     // const { error } = loginValidationSchema.validate(req.body);

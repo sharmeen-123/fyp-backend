@@ -20,6 +20,7 @@ userRouter.put("/login", userController.login);
 userRouter.get("/getVerifiedCompanies", userController.getVerifiedCompanies);
 userRouter.get("/getUnverifiedCompanies", userController.getUnverifiedCompanies);
 userRouter.get("/getImage/:id", userController.getImage);
+userRouter.put("/updateUser/:id", userController.updateUser);
 
 
 module.exports =  userRouter;
