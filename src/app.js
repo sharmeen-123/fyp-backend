@@ -5,6 +5,7 @@ const router = require("../routes/main");
 const initSocket = require("../routes/socket");
 const http = require("http");
 const mongoose = require("mongoose");
+const path = require("path");
 
 class App {
   constructor() {
@@ -30,24 +31,26 @@ class App {
   }
   connectToMongoDB() {
     const db = process.env.MONGO_CONNECTION;
-    mongoose.connect(
-      db,
-      {
+    mongoose
+      .connect(db, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         useCreateIndex: true,
-      }
-    )
-    .then(() => {
-      console.log("MongoDB connected successfully");
-    })
-    .catch((err) => {
-      console.error("Error connecting to MongoDB:", err.message);
-      process.exit(1); // Exit the application with an error code
-    });
+      })
+      .then(() => {
+        console.log("MongoDB connected successfully");
+      })
+      .catch((err) => {
+        console.error("Error connecting to MongoDB:", err.message);
+        process.exit(1); // Exit the application with an error code
+      });
   }
-  
+
   initRoutes() {
+    const folderPath = __dirname;
+    const publicPath = path.join(folderPath, "..", "public");
+
+    this.app.use(express.static(publicPath));
     this.app.use("/", router);
     initSocket(this.io);
   }

@@ -36,6 +36,7 @@ const userController = {
     // Find if the user already exists
     const emailExists = await User.findOne({
       email: user.email,
+      type: user.type
     });
 
     if (emailExists) {
@@ -402,6 +403,7 @@ const userController = {
       name: founduser.name,
       email: founduser.email,
       _id: founduser._id,
+      image:founduser.image,
       isAmdin: founduser.isAdmin,
     }
          

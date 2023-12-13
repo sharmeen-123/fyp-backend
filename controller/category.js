@@ -45,14 +45,30 @@ const CategoryController = {
 
     // Find if the Category already exists
     const categoryExists = await Category.find({
-      name,
+      
     });
 
     if (categoryExists.length > 0) {
+      const data = []
+      categoryExists.map((val, ind) => {
+        if (ind == 0){
+          data.push({
+            name:val.name,
+            _id : val._id,
+            selected: true
+          })
+        }else{
+          data.push({
+            name:val.name,
+            _id : val._id,
+            selected: false
+          })
+        }
+      })
         return res.status(200).send({
             success: true,
             message:"Category Found",
-            data: categoryExists,
+            data: data,
           });
     }
 
