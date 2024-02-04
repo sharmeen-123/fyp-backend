@@ -11,9 +11,6 @@ const verifyCompany = require("../Template/Mail/VerifyCompany");
 const { validate } = require("uuid");
 const rejectRequest = require("../Template/Mail/RejectCompanyRequest");
 
-// const { promisify } = require("util");
-// const catchAsync = require("../utils/catchAsync");
-
 function isValidEmail(email) {
   // Use a regular expression to check for a valid email format
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -21,7 +18,8 @@ function isValidEmail(email) {
 }
 
 const userController = {
-  // register api
+  // ----------------- api to register user -----------------
+
   async register(req, res) {
     let userData = req.body;
     let user = new User(userData);
@@ -87,151 +85,10 @@ const userController = {
     });
   },
 
-  // const get verified companies
-  async getVerifiedCompanies(req, res) {
-    const companies = await User.find({
-      verified: true,
-    });
 
-    let users = [];
-    let sellers = 0;
-    let customers = 0;
-    companies.map((val) => {
-      if (val.type != "admin") {
-        users.push(val);
-      }
-      if (val.type == "company") {
-        sellers++;
-      } else if (val.type != "admin") {
-        customers++;
-      }
-    });
-    if (companies) {
-      res.status(200).send({
-        success: true,
-        data: users,
-        sellers,
-        customers,
-      });
-    } else {
-      res.status(404).send({
-        success: false,
-        error: "companies not found",
-      });
-    }
-  },
 
-  // const get verified companies
-  async getUnverifiedCompanies(req, res) {
-    const companies = await User.find({
-      verified: false,
-      type: "company",
-    });
+  // ----------------- api to upload/ update image -----------------
 
-    if (companies) {
-      res.status(200).send({
-        success: true,
-        data: companies,
-      });
-    } else {
-      res.status(404).send({
-        success: false,
-        error: "companies not found",
-      });
-    }
-  },
-
-  // resetPassword api
-  async resetPassword(req, res) {
-    let email = req.body.email;
-    let password = req.body.password;
-    console.log(email, password);
-    let code = 400;
-    let data = {
-      success: false,
-      error: "Unable to change password",
-    };
-
-    // Check if the password has a maximum length of 8 characters
-    if (password && password.length < 8) {
-      console.log("Password exceeds maximum length");
-      code = 400;
-      data = {
-        success: false,
-        error: "Password must be atleast 8 characters",
-      };
-    } else {
-      const salt = await bcrypt.genSalt(10);
-      password = await bcrypt.hash(password, salt);
-
-      const company = await User.findOneAndUpdate({ email }, { password })
-        .then((res) => {
-          code = 200;
-          data = {
-            success: true,
-            message: "password changed successfully",
-          };
-        })
-        .catch((err) => {
-          code = 404;
-          data = {
-            success: false,
-            message: "email not found",
-          };
-        });
-    }
-
-    // Hash the password
-
-    res.status(code).send({
-      data: data,
-    });
-  },
-
-  // add CompanyName api
-  async addCompanyName(req, res) {
-    const id = req.params.id;
-    const companyName = req.body.companyName;
-    console.log(id);
-    let sendingData, code;
-
-    if (!id) {
-      code = 400;
-      sendingData = {
-        success: false,
-        error: "Company id is empty",
-      };
-    }
-
-    if (!companyName) {
-      code = 400;
-      sendingData = {
-        success: false,
-        error: "please fill the field",
-      };
-    } else {
-      const company = await User.findOneAndUpdate({ _id: id }, { companyName })
-        .then((res) => {
-          code = 200;
-          sendingData = {
-            success: true,
-            message: "company name added successfully",
-          };
-        })
-        .catch((err) => {
-          code = 500;
-          sendingData = {
-            success: false,
-            error: "Some Error Occured",
-          };
-        });
-    }
-    res.status(code).send({
-      data: sendingData,
-    });
-  },
-
-  // upload image
   async uploadImage(req, res, next) {
     const companyId = req.params.id;
 
@@ -240,7 +97,7 @@ const userController = {
 
     if (!companyId) {
       return res.status(404).send({
-        error: "company id cannot be empty",
+        error: "user id cannot be empty",
         success: false,
       });
     }
@@ -257,7 +114,7 @@ const userController = {
 
       if (!upload) {
         return res.status(404).send({
-          error: "Company not found",
+          error: "user not found",
           success: false,
         });
       }
@@ -275,99 +132,10 @@ const userController = {
     }
   },
 
-  // complete Profile
-  async completeProfile(req, res) {
-    const id = req.params.id;
-    const location = req.body.location;
-    const contact = req.body.number;
-    console.log(id);
-    let sendingData, code;
 
-    if (!id) {
-      code = 400;
-      sendingData = {
-        success: false,
-        error: "Company id is empty",
-      };
-    }
 
-    if (!location || !contact) {
-      code = 400;
-      sendingData = {
-        success: false,
-        error: "please fill the field",
-      };
-    } else {
-      const company = await User.findOneAndUpdate(
-        { _id: id },
-        { location, contact }
-      )
-        .then((res) => {
-          code = 200;
-          sendingData = {
-            success: true,
-            error: "details added successfully",
-          };
-        })
-        .catch((err) => {
-          code = 500;
-          sendingData = {
-            success: false,
-            error: "Some Error Occured",
-          };
-        });
-    }
-    res.status(code).send({
-      data: sendingData,
-    });
-  },
 
-  // set company type
-  async setCompanyType(req, res) {
-    const id = req.params.id;
-    const companyType = req.body.companyType;
-    const categoryTags = req.body.categoryTags;
-    console.log(req.body);
-    let sendingData, code;
-
-    if (!id) {
-      code = 400;
-      sendingData = {
-        success: false,
-        error: "Company id is empty",
-      };
-    }
-
-    if (!companyType || !categoryTags) {
-      code = 400;
-      sendingData = {
-        success: false,
-        error: "please fill the field",
-      };
-    } else {
-      const company = await User.findOneAndUpdate(
-        { _id: id },
-        { companyType, categoryTags }
-      )
-        .then((res) => {
-          code = 200;
-          sendingData = {
-            success: true,
-            error: "details added successfully",
-          };
-        })
-        .catch((err) => {
-          code = 500;
-          sendingData = {
-            success: false,
-            error: "Some Error Occured",
-          };
-        });
-    }
-    res.status(code).send({
-      data: sendingData,
-    });
-  },
+  // ----------------- api to upload documents -----------------
 
   async uploadDocuments(req, res, next) {
     const companyId = req.params.id;
@@ -411,6 +179,122 @@ const userController = {
     }
   },
 
+
+
+
+  // ----------------- api to get verified companies -----------------
+
+  async getVerifiedCompanies(req, res) {
+    const companies = await User.find({
+      verified: true,
+      // type:'company'
+    });
+
+    let users = [];
+    let sellers = 0;
+    let customers = 0;
+    companies.map((val) => {
+      if (val.type != "admin") {
+        users.push(val);
+        
+      }
+      if (val.type == "company") {
+        sellers++;
+      } else if (val.type != "admin") {
+        customers++;
+      }
+    });
+    if (companies) {
+      res.status(200).send({
+        success: true,
+        data: users,
+        sellers,
+        customers,
+      });
+    } else {
+      res.status(404).send({
+        success: false,
+        error: "companies not found",
+      });
+    }
+  },
+
+
+
+
+
+  // ----------------- api to get unverified companies -----------------
+
+  async getUnverifiedCompanies(req, res) {
+    const companies = await User.find({
+      verified: false,
+      type: "company",
+    });
+
+    if (companies) {
+      res.status(200).send({
+        success: true,
+        data: companies,
+      });
+    } else {
+      res.status(404).send({
+        success: false,
+        error: "companies not found",
+      });
+    }
+  },
+
+
+
+
+  // ----------------- api to reset password -----------------
+
+  async resetPassword(req, res) {
+    let email = req.body.email;
+    let password = req.body.password;
+    console.log(email, password);
+   
+    try {
+        // Check if the password has a minimum length of 8 characters
+        if (password && password.length < 8) {
+            return res.status(400).send({
+                success: false,
+                error: "Password must be at least 8 characters",
+            });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        password = await bcrypt.hash(password, salt);
+
+        // Update password in the database
+        const company = await User.findOneAndUpdate({ email }, { password });
+
+        if (company) {
+            // Password changed successfully
+            return res.status(200).send({
+                success: true,
+                message: "Password changed successfully",
+            });
+        } else {
+            // User not found
+            return res.status(404).send({
+                success: false,
+                error: "User not found",
+            });
+        }
+    } catch (err) {
+        // Handle any errors that occurred during the process
+        console.log(err);
+        return res.status(500).send({
+            success: false,
+            error: "Some error occurred",
+        });
+    }
+},
+
+  
+
+  
    // ----------------- api to update user ----------------- 
    async updateUser(req, res) {
     
@@ -422,8 +306,6 @@ const userController = {
         if(updatedUser.password){
           const salt = await bcrypt.genSalt(10);
             updatedUser.password = await bcrypt.hash(updatedUser.password, salt);
-            console.log("password", updatedUser.password);
-            console.log("id", id);
           update = await User.findOneAndUpdate(
             {_id : id},
             {
@@ -445,7 +327,6 @@ const userController = {
         )
         }
       if (!update){
-        console.log("error")
         res.status(400).send("Error");
       }
      
@@ -456,9 +337,10 @@ const userController = {
       }
      
   },
-  // login api
+
+
+  // ----------------- login api -----------------
   async login(req, res) {
-    // const { error } = loginValidationSchema.validate(req.body);
     let code = 404;
     let data = {
       success: false,
@@ -466,35 +348,28 @@ const userController = {
     };
 
     const userData = req.body;
-    const user = new User(userData);
+    try{
     const founduser = await User.findOne({
       email: userData.email,
       type: userData.type,
     });
-
-    console.log("found user", founduser);
-    const checkverified = await User.findOne({
-      email: userData.email,
-      type: userData.type,
-      verified: true,
-    });
-
+    
     if (!founduser) {
       code = 404;
       data = {
         success: false,
         error: "Email is Wrong",
       };
-      res.status(code).send({
+      return res.status(code).send({
         data,
       });
-    } else if (!checkverified) {
+    } else if (!founduser.verified) {
       code = 404;
       data = {
         success: false,
         error: "User not Verified",
       };
-      res.status(code).send({
+      return res.status(code).send({
         data,
       });
     } else {
@@ -502,15 +377,13 @@ const userController = {
         userData.password,
         founduser.password
       );
-
-      console.log("valid pass", validPass);
       if (!validPass) {
         code = 404;
         data = {
           success: false,
           error: "Wrong Password",
         };
-        res.status(code).send({
+        return res.status(code).send({
           data,
         });
       } else {
@@ -530,13 +403,20 @@ const userController = {
         };
       }
     }
-    res.status(code).send({
+    return res.status(code).send({
       data: data,
     });
+  }catch(err){
+    res.status(404).send({
+      data:{message:"cretintials not match"}
+    })
+  }
    
   },
 
-  // getImage
+
+
+  // ----------------- getImage -----------------
   async getImage(req, res) {
     // const { error } = loginValidationSchema.validate(req.body);
     let code = 404;
@@ -548,7 +428,6 @@ const userController = {
     const _id = req.params.id;
     const founduser = await User.findOne({ _id });
 
-    console.log("found user", founduser);
 
     if (!founduser) {
       code = 404;
@@ -571,10 +450,11 @@ const userController = {
     });
   },
 
-  // send OTP
+
+
+  // ----------------- send OTP -----------------
   async sendOTP(req, res, next) {
     const { email } = req.body;
-    console.log(email);
     const new_otp = otpGenerator.generate(4, {
       upperCaseAlphabets: false,
       specialChars: false,
@@ -612,8 +492,6 @@ const userController = {
         attachments: [],
       });
 
-      console.log(new_otp);
-
       code = 200;
       data = {
         success: true,
@@ -626,9 +504,11 @@ const userController = {
     });
   },
 
+
+  // ----------------- verify company api -----------------
+
   async verifyCompany(req, res, next) {
     const { id } = req.body;
-    console.log(id);
     const new_otp = otpGenerator.generate(4, {
       upperCaseAlphabets: false,
       specialChars: false,
@@ -687,13 +567,17 @@ const userController = {
     });
   },
 
+
+
+  // ----------------- reject company request -----------------
+
   async RejectCompanyRequest(req, res, next) {
     const { id } = req.body;
     console.log(id);
     let code = 404;
     let data = {
       success: false,
-      error: "Company not rejected",
+      error: "Company request not rejected due to some error",
     };
 
     try {
@@ -753,58 +637,50 @@ const userController = {
     });
   },
 
+
+  // ----------------- verify OTP -----------------
+
   async verifyOtp(req, res) {
     // verify otp and update user accordingly
     const { email, otp } = req.body;
     const user = await User.findOne({
       email,
     });
-    let code = 404;
-    let data = {
-      success: false,
-      error: "otp not verified",
-    };
 
     if (!user) {
-      code = 404;
-      data = {
+      return res.status(404).json({
         success: false,
         error: "Email is not registered",
-      };
+      });
     } else {
       const checkExpiry = await User.findOne({
         email,
         otp_expiry_time: { $gt: Date.now() },
       });
       if (!checkExpiry) {
-        code = 404;
-        data = {
+        return res.status(404).json({
           success: false,
-          message: "OTP is expired",
-        };
+          error: "OTP is expired",
+        });
       } else {
         const checkOtp = await User.findOne({
           email,
           otp,
         });
         if (checkOtp) {
-          code = 200;
-          data = {
+          
+          return res.status(200).json({
             success: true,
             message: "Otp is correct",
-          };
+          });
         } else {
-          code = 404;
-          data = {
+          return res.status(404).json({
             success: false,
-            message: "Otp is incorrect",
-          };
+            error: "Otp is incorrect",
+          });
         }
       }
     }
-    res.status(code).json({
-      data: data,
-    });
   },
 };
 
