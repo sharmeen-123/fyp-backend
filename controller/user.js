@@ -85,8 +85,6 @@ const userController = {
     });
   },
 
-
-
   // ----------------- api to upload/ update image -----------------
 
   async uploadImage(req, res, next) {
@@ -132,9 +130,6 @@ const userController = {
     }
   },
 
-
-
-
   // ----------------- api to upload documents -----------------
 
   async uploadDocuments(req, res, next) {
@@ -179,9 +174,6 @@ const userController = {
     }
   },
 
-
-
-
   // ----------------- api to get verified companies -----------------
 
   async getVerifiedCompanies(req, res) {
@@ -196,7 +188,6 @@ const userController = {
     companies.map((val) => {
       if (val.type != "admin") {
         users.push(val);
-        
       }
       if (val.type == "company") {
         sellers++;
@@ -219,9 +210,33 @@ const userController = {
     }
   },
 
+  // ----------------- api to get profile -----------------
 
+  async getProfile(req, res) {
+    let { user } = req.params;
+    try {
+      const userFound = await User.find({
+        _id: user,
+      });
 
-
+      if (userFound && userFound.length > 0) {
+        res.status(200).send({
+          success: true,
+          data: userFound,
+        });
+      } else {
+        res.status(404).send({
+          success: false,
+          error: "User not found",
+        });
+      }
+    } catch (error) {
+      res.status(500).send({
+        success: false,
+        error: error.message || "Internal Server Error",
+      });
+    }
+  },
 
   // ----------------- api to get unverified companies -----------------
 
@@ -244,98 +259,184 @@ const userController = {
     }
   },
 
-
-
-
   // ----------------- api to reset password -----------------
 
   async resetPassword(req, res) {
     let email = req.body.email;
     let password = req.body.password;
     console.log(email, password);
-   
+
     try {
-        // Check if the password has a minimum length of 8 characters
-        if (password && password.length < 8) {
-            return res.status(400).send({
-                success: false,
-                error: "Password must be at least 8 characters",
-            });
-        }
+      // Check if the password has a minimum length of 8 characters
+      if (password && password.length < 8) {
+        return res.status(400).send({
+          success: false,
+          error: "Password must be at least 8 characters",
+        });
+      }
 
-        const salt = await bcrypt.genSalt(10);
-        password = await bcrypt.hash(password, salt);
+      const salt = await bcrypt.genSalt(10);
+      password = await bcrypt.hash(password, salt);
 
-        // Update password in the database
-        const company = await User.findOneAndUpdate({ email }, { password });
+      // Update password in the database
+      const company = await User.findOneAndUpdate({ email }, { password });
 
-        if (company) {
-            // Password changed successfully
-            return res.status(200).send({
-                success: true,
-                message: "Password changed successfully",
-            });
-        } else {
-            // User not found
-            return res.status(404).send({
-                success: false,
-                error: "User not found",
-            });
-        }
+      if (company) {
+        // Password changed successfully
+        return res.status(200).send({
+          success: true,
+          message: "Password changed successfully",
+        });
+      } else {
+        // User not found
+        return res.status(404).send({
+          success: false,
+          error: "User not found",
+        });
+      }
     } catch (err) {
-        // Handle any errors that occurred during the process
-        console.log(err);
-        return res.status(500).send({
-            success: false,
-            error: "Some error occurred",
-        });
+      // Handle any errors that occurred during the process
+      console.log(err);
+      return res.status(500).send({
+        success: false,
+        error: "Some error occurred",
+      });
     }
-},
+  },
 
-  
+  // ----------------- api to update user -----------------
+  async updateUser(req, res) {
+    let { id, email, phone, location, name } = req.body;
 
-  
-   // ----------------- api to update user ----------------- 
-   async updateUser(req, res) {
-    
-      let id = req.params.id;
-      let updatedUser = req.body;
-
-        // update user
-        let update;
-        if(updatedUser.password){
-          const salt = await bcrypt.genSalt(10);
-            updatedUser.password = await bcrypt.hash(updatedUser.password, salt);
-          update = await User.findOneAndUpdate(
-            {_id : id},
-            {
-              name:updatedUser.name,
-              password: updatedUser.password,
-                email: updatedUser.email,  
-                phone: updatedUser.phone,
-                location: updatedUser.location,
-            }
-        )}else{
-          update = await User.findOneAndUpdate(
-            {_id : id},
-            {
-              name:updatedUser.name,
-                email: updatedUser.email,  
-                phone: updatedUser.phone,
-                location: updatedUser.location,
-            }
-        )
-        }
-      if (!update){
-        res.status(400).send("Error");
-      }
-     
-      else{
-        res.status(200).send({
-          data: "data updated successfully",
+    // update user
+    try {
+      let emailExist = await User.find({ email: email });
+      if (emailExist && emailExist.length > 0) {
+        res.status(400).send({
+          success: false,
+          error: "User with this email already exists",
         });
+      } else {
+        let update = await User.findOneAndUpdate(
+          { _id: id },
+          {
+            name,
+            email,
+            contact: phone,
+            location,
+          }
+        );
+
+        if (!update) {
+          res.status(400).send({
+            success: false,
+            error: "user not updated, try again",
+          });
+        } else {
+          res.status(200).send({
+            success: true,
+            message: "data updated successfully",
+            data: update,
+          });
+        }
       }
-     
+    } catch (error) {
+      res.status(500).send({
+        success: false,
+        error: error.message || "Internal Server Error",
+      });
+    }
+  },
+
+  // ----------------- api to change password -----------------
+  async changePassword(req, res) {
+    let { id, oldPassword, newPassword } = req.body;
+    
+
+    try {
+      
+      const founduser = await User.findOne({
+        _id: id,
+      });
+      
+      if (!founduser) {
+        return res.status(404).send({
+          success: false,
+          error: "user with this id not found",
+        });
+      } else {
+        console.log("in else")
+        const validPass = await bcrypt.compare(oldPassword, founduser.password);
+        
+        console.log(validPass, "  ", oldPassword, "  ", newPassword);
+        if (!validPass) {
+          return res.status(404).send({
+            success: false,
+            error: "Old password is in correct",
+          });
+        } else {
+          // Hash the password
+          console.log("in else")
+          const salt = await bcrypt.genSalt(10);
+          newPassword = await bcrypt.hash(newPassword, salt);
+
+          const updatedPassword = await User.findOneAndUpdate(
+            { _id: id },
+            { password: newPassword }
+          );
+          if (updatedPassword) {
+            return res.status(200).send({
+              success: true,
+              message: "password updated successfully",
+              data: updatedPassword,
+            });
+          } else {
+            return res.status(404).send({
+              success: false,
+              error: "Some error occured",
+            });
+          }
+        }
+      }
+    } catch (err) {
+      res.status(404).send({
+        success: false,
+        error: err || "credentials not match" ,
+      });
+    }
+  },
+
+
+   // ............................delete user api.............................
+   async deleteProfile(req, res) {
+    let id = req.params.id
+    
+    try{
+    
+    const profileDeleted = await User.findOneAndDelete({
+      _id:id
+    });
+
+    if (profileDeleted) {
+        return res.status(200).send({
+            success: true,
+            message:"Profile Deleted Successfully",
+            // data: productExists,
+          });
+    }
+
+   else{
+    return res.status(400).send({
+        success: false,
+        error: "Unable to delete profile",
+      });
+    }
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      error: err || "Internal Server Error" ,
+    });
+  }
   },
 
 
@@ -348,73 +449,70 @@ const userController = {
     };
 
     const userData = req.body;
-    try{
-    const founduser = await User.findOne({
-      email: userData.email,
-      type: userData.type,
-    });
-    
-    if (!founduser) {
-      code = 404;
-      data = {
-        success: false,
-        error: "Email is Wrong",
-      };
-      return res.status(code).send({
-        data,
+    try {
+      const founduser = await User.findOne({
+        email: userData.email,
+        type: userData.type,
       });
-    } else if (!founduser.verified) {
-      code = 404;
-      data = {
-        success: false,
-        error: "User not Verified",
-      };
-      return res.status(code).send({
-        data,
-      });
-    } else {
-      const validPass = await bcrypt.compare(
-        userData.password,
-        founduser.password
-      );
-      if (!validPass) {
+
+      if (!founduser) {
         code = 404;
         data = {
           success: false,
-          error: "Wrong Password",
+          error: "Email is Wrong",
+        };
+        return res.status(code).send({
+          data,
+        });
+      } else if (!founduser.verified) {
+        code = 404;
+        data = {
+          success: false,
+          error: "User not Verified",
         };
         return res.status(code).send({
           data,
         });
       } else {
-        const token = jwt.sign(
-          { _id: founduser._id },
-          process.env.TOKEN_SECRET
+        const validPass = await bcrypt.compare(
+          userData.password,
+          founduser.password
         );
-        code = 200;
-        data = {
-          success: true,
-          message: "logged in successfully",
-          authToken: token,
-          name: founduser.name,
-          email: founduser.email,
-          _id: founduser._id,
-          image: founduser.image,
-        };
+        if (!validPass) {
+          code = 404;
+          data = {
+            success: false,
+            error: "Wrong Password",
+          };
+          return res.status(code).send({
+            data,
+          });
+        } else {
+          const token = jwt.sign(
+            { _id: founduser._id },
+            process.env.TOKEN_SECRET
+          );
+          code = 200;
+          data = {
+            success: true,
+            message: "logged in successfully",
+            authToken: token,
+            name: founduser.name,
+            email: founduser.email,
+            _id: founduser._id,
+            image: founduser.image,
+          };
+        }
       }
+      return res.status(code).send({
+        data: data,
+      });
+    } catch (err) {
+      res.status(404).send({
+        data: { message: "cradentials not match" },
+      });
     }
-    return res.status(code).send({
-      data: data,
-    });
-  }catch(err){
-    res.status(404).send({
-      data:{message:"cretintials not match"}
-    })
-  }
-   
   },
-
-
 
   // ----------------- getImage -----------------
   async getImage(req, res) {
@@ -427,7 +525,6 @@ const userController = {
 
     const _id = req.params.id;
     const founduser = await User.findOne({ _id });
-
 
     if (!founduser) {
       code = 404;
@@ -449,8 +546,6 @@ const userController = {
       data,
     });
   },
-
-
 
   // ----------------- send OTP -----------------
   async sendOTP(req, res, next) {
@@ -503,7 +598,6 @@ const userController = {
       data: data,
     });
   },
-
 
   // ----------------- verify company api -----------------
 
@@ -566,8 +660,6 @@ const userController = {
       data: data,
     });
   },
-
-
 
   // ----------------- reject company request -----------------
 
@@ -637,7 +729,6 @@ const userController = {
     });
   },
 
-
   // ----------------- verify OTP -----------------
 
   async verifyOtp(req, res) {
@@ -668,7 +759,6 @@ const userController = {
           otp,
         });
         if (checkOtp) {
-          
           return res.status(200).json({
             success: true,
             message: "Otp is correct",

@@ -9,18 +9,6 @@ const ProductController = {
 
     console.log("product data",ProductData)
 
-    // Find if the Product already exists
-    // const productExists = await Product.findOne({
-    //   name: product.name,
-    // });
-
-    // if (productExists) {
-    //   return res.status(400).send({
-    //     success: false,
-    //     error: "Product with this name already exists",
-    //   });
-    // }
-
     // Save the Product to the database
     product.save((error, addNewProduct) => {
       if (error) {
@@ -182,6 +170,55 @@ const ProductController = {
     return res.status(400).send({
         success: false,
         error: "No product added yet",
+      });
+    }
+  },
+
+   // get All Product api
+   async getAllProducts(req, res) {
+
+    // Find all products
+    const productExists = await Product.find({
+      
+    });
+
+    if (productExists.length > 0) {
+        return res.status(200).send({
+            success: true,
+            message:"Product Found",
+            data: productExists,
+          });
+    }
+
+   else{
+    return res.status(400).send({
+        success: false,
+        error: "No product added yet",
+      });
+    }
+  },
+
+  // get All Product api
+  async getProductById(req, res) {
+
+      let {product} = req.params;
+    // Find all products
+    const productExists = await Product.find({
+      _id: product
+    });
+
+    if (productExists.length > 0) {
+        return res.status(200).send({
+            success: true,
+            message:"Product Found",
+            data: productExists,
+          });
+    }
+
+   else{
+    return res.status(400).send({
+        success: false,
+        error: "Product Not Found",
       });
     }
   },

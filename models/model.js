@@ -10,5 +10,16 @@ const modelSchema = new Schema({
     type: String,
     required:true,
   },
+  default: {
+    type: Boolean,
+    required: true
+  },
+  companyId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "user"
+  },
+  deleted: {
+    default: false
+  }
 });
 module.exports =  mongoose.model("model", modelSchema, "models");

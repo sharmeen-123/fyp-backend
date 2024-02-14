@@ -2,10 +2,12 @@ const express = require("express");
 const headRouter = require("./user");
 const categoryRouter = require("./category");
 const productRouter = require("./product");
-const path = require('path');
-
+const cartRouter = require("./cart")
+const reviewRouter = require("./review")
+const modelRouter = require("./model")
 const pathh = require('./getAbsolutePath')
 const authGuard = require("../middleware/authGuard");
+
 
 const router = express.Router();
 
@@ -19,6 +21,10 @@ router.get("/", (req, res) => {
 router.use("/auth", headRouter);
 router.use("/category", categoryRouter);
 router.use("/product", productRouter);
+router.use('/cart', cartRouter);
+router.use('/review', reviewRouter);
+router.use('/model', modelRouter);
+
 router.use('/images', pathh);
 
 
