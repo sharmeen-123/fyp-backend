@@ -4,6 +4,7 @@ const CartController = {
   // addCart api
   async addtoCart(req, res) {
     let { user, product } = req.body;
+    try{
     let CartData = { user, products: [{ product, quantity: 1 }] };
     // Find if the Cart already exists
     const cartExists = await Cart.findOne({
@@ -71,12 +72,19 @@ const CartController = {
           });
         }
       } catch (err) {
-        return res.status(500).send({
+        return res.status(400).send({
           success: false,
           error: "Some Error Occurred",
         });
       }
     }
+  } catch (error) {
+    // Handle any unexpected errors
+    res.status(500).send({
+      success: false,
+      error: "Internal server error",
+    });
+  }
   },
   // ..................... remove item from cart ...............................
   async removeFromCart(req, res) {
@@ -137,6 +145,7 @@ const CartController = {
   // .......................................get Cart api.........................................
   async getCart(req, res) {
     let { user } = req.body;
+    try{
 
     // Find if the Cart already exists
     const CartExists = await Cart.find({
@@ -155,11 +164,20 @@ const CartController = {
         error: "Cart with this id do not exists",
       });
     }
+  } catch (error) {
+    // Handle any unexpected errors
+    console.error("Error in Model function:", error);
+    res.status(500).send({
+      success: false,
+      error: "Internal server error",
+    });
+  }
   },
 
   // .........................................clear Cart api.............................
   async clearCart(req, res) {
     let { user } = req.body;
+    try{
 
     const CartDeleted = await Cart.findOneAndDelete({
       user,
@@ -177,6 +195,14 @@ const CartController = {
         error: "Unable to delete cart",
       });
     }
+  } catch (error) {
+    // Handle any unexpected errors
+    console.error("Error in Model function:", error);
+    res.status(500).send({
+      success: false,
+      error: "Internal server error",
+    });
+  }
   },
 };
 

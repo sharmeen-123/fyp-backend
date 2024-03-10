@@ -5,6 +5,7 @@ const productRouter = require("./product");
 const cartRouter = require("./cart")
 const reviewRouter = require("./review")
 const modelRouter = require("./model")
+const couponRouter = require("./coupon")
 const pathh = require('./getAbsolutePath')
 const authGuard = require("../middleware/authGuard");
 
@@ -23,7 +24,8 @@ router.use("/category", categoryRouter);
 router.use("/product", productRouter);
 router.use('/cart', cartRouter);
 router.use('/review', reviewRouter);
-router.use('/model', modelRouter);
+router.use('/model',authGuard, modelRouter);
+router.use('/coupon', couponRouter);
 
 router.use('/images', pathh);
 

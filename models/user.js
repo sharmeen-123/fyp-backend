@@ -48,7 +48,7 @@ const userSchema = new Schema({
     type: Array
   },
   contact: {
-    type: Number,
+    type: String,
   },
   image: {
     type: String,

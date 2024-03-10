@@ -15,7 +15,7 @@ userRouter.put("/resetPassword", userController.resetPassword);
 userRouter.put("/verifyCompany", userController.verifyCompany);
 userRouter.put("/rejectCompany", userController.RejectCompanyRequest);
 userRouter.put("/login", userController.login);
-userRouter.put("/updateUser", userController.updateUser);
+userRouter.put("/updateUser",uploadMiddleware.single('file') , userController.updateUser);
 userRouter.put("/changePassword", userController.changePassword);
 
 userRouter.get("/getVerifiedCompanies", userController.getVerifiedCompanies);

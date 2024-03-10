@@ -41,7 +41,7 @@ const productSchema = new Schema({
     type: Array
   },
   images3D:{
-    type: Array
+    type:String
   },
   rating:{
     type: Number,
