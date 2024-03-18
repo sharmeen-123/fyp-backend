@@ -29,13 +29,21 @@ const couponSchema = new Schema({
     type: Date,
     required: true,
   },
+  lng:{
+    type: Number,
+    required: true
+  },
+  lat:{
+    type: Number,
+    required: true
+  },
   locations: [
     {
-      longitude: {
+      lat: {
         type: String,
         required: true,
       },
-      latitude: {
+      lng: {
         type: String,
         required: true,
       },
@@ -49,10 +57,6 @@ const couponSchema = new Schema({
       },
     },
   ],
-  area: {
-    type: String,
-    required: true,
-  },
   radius: {
     type: Number,
     required: true,
@@ -61,9 +65,22 @@ const couponSchema = new Schema({
     type: Number,
     required: true,
   },
+  location:{
+    type: String,
+    required: true
+  },
+  cardId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "paymentMethod",
+    required: true
+  },
   availed: {
     type: Number,
     default: 0,
+  },
+  amount:{
+    type: Number,
+    required: true,
   },
   collected: {
     type: Number,

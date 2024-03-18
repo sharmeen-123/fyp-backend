@@ -48,8 +48,7 @@ const ModelController = {
           res.status(200).send({
             success: true,
             message: "new model added successfully",
-            name: addNewModel.name,
-            _id: addNewModel._id,
+            model: addNewModel
           });
         });
       } else {

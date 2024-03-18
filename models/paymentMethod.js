@@ -20,7 +20,7 @@ const paymentMethodSchema = new Schema({
     required: true,
   },
   expiryDate: {
-    type: Date,
+    type: String,
     required: true,
   },
   cvv: {
@@ -34,5 +34,7 @@ const paymentMethodSchema = new Schema({
 module.exports = mongoose.model(
   "paymentMethod",
   paymentMethodSchema,
-  "paymentMethod"
+  "paymentMethods"
 );
+
+

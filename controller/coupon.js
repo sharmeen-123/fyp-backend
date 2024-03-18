@@ -5,27 +5,10 @@ const CouponController = {
   // addCoupon api
   async addCoupon(req, res) {
     let CouponData = req.body;
+    console.log(req.body);
     const date = new Date();
     CouponData.issueDate = date;
     CouponData.unCollected = CouponData.distributedCoupons;
-
-    // add locations
-    const lat = parseFloat(CouponData.latitude);
-    const lon = parseFloat(CouponData.longitude);
-    const rad = parseFloat(CouponData.radius);
-    const numCoupons = parseInt(CouponData.distributedCoupons);
-
-    const coupons = [];
-    for (let i = 0; i < numCoupons; i++) {
-      const randomLat = lat + (Math.random() * 2 - 1) * (rad / 111);
-      const randomLon =
-        lon +
-        (Math.random() * 2 - 1) *
-          (rad / (111 * Math.cos((lat * Math.PI) / 180)));
-      coupons.push({ latitude: randomLat, longitude: randomLon });
-    }
-
-    CouponData.locations = coupons;
 
     try {
       let coupon = new Coupon(CouponData);
@@ -56,6 +39,10 @@ const CouponController = {
   // get Coupon by company id api
   async getCoupon(req, res) {
     let { company } = req.params;
+    let totalCoupons = 0;
+    let collectedCoupons = 0;
+    let availedCoupons = 0;
+    let expired = 0;
 
     try {
       // Find if the Coupon already exists
@@ -63,16 +50,40 @@ const CouponController = {
         company,
       });
 
-      if (data.length > 0) {
+      if (data) {
+        const currentDate = new Date();
+        data.map((val) => {
+          totalCoupons += val.distributedCoupons;
+          collectedCoupons += val.collected;
+          availedCoupons += val.availed;
+
+    // Parsing expiry date
+    const expiryDate = new Date(val.expiry);
+
+    // Check if the expiry date is valid and greater than or equal to the current date
+    const expiryy = new Date(val.expiry).toLocaleDateString()
+    const current = currentDate.toLocaleDateString();
+
+
+    if (!isNaN(expiryDate.getTime()) && expiryy < current) {
+        expired += val.unCollected;
+        console.log("Expiry Date:", expiryy, "Current Date:",current );
+ 
+    }
+        });
         return res.status(200).send({
           success: true,
           message: "Coupon Found",
+          total : totalCoupons,
+          availed: availedCoupons,
+          collected: collectedCoupons,
+          expired: expired,
           data: data,
         });
       } else {
         return res.status(400).send({
           success: false,
-          error: "Coupon with this name do not exists",
+          error: "no coupons exist",
         });
       }
     } catch (err) {
@@ -115,7 +126,7 @@ const CouponController = {
 
   // update Coupon api
   async collectCoupon(req, res, next) {
-    const { user, id, longitude, latitude } = req.body;
+    const { user, id, lng, lat } = req.body;
 
     // wallet object
     const date = new Date();
@@ -141,9 +152,7 @@ const CouponController = {
         let index = locations.findIndex(findCoupon);
         function findCoupon(location) {
           let ind =
-            location.longitude == longitude &&
-            location.latitude == latitude &&
-            !location.user;
+            location.lng == lng && location.lat == lat && !location.user;
           return ind;
         }
 

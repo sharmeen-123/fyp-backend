@@ -6,6 +6,9 @@ const cartRouter = require("./cart")
 const reviewRouter = require("./review")
 const modelRouter = require("./model")
 const couponRouter = require("./coupon")
+const paymentMethodRouter = require("./paymentMethod")
+const paymentPlanRouter = require("./paymentPlan")
+const stripe = require("./stripe")
 const pathh = require('./getAbsolutePath')
 const authGuard = require("../middleware/authGuard");
 
@@ -26,6 +29,9 @@ router.use('/cart', cartRouter);
 router.use('/review', reviewRouter);
 router.use('/model',authGuard, modelRouter);
 router.use('/coupon', couponRouter);
+router.use('/payments', paymentMethodRouter);
+router.use('/plans', paymentPlanRouter);
+router.use('/stripe', stripe);
 
 router.use('/images', pathh);
 

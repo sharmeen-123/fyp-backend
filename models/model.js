@@ -10,6 +10,7 @@ const modelSchema = new Schema({
     type: String,
     required:true,
   },
+ 
   default: {
     type: Boolean,
     required: true
