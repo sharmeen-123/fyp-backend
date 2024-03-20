@@ -26,7 +26,9 @@ const CartController = {
         res.status(200).send({
           success: true,
           message: "new cart added successfully",
-          _id: addNewCart._id,
+          data:{
+            _id: addNewCart._id,
+          }
         });
       });
     } else {
@@ -63,7 +65,7 @@ const CartController = {
           return res.status(200).send({
             success: true,
             message: "Cart updated successfully",
-            cart: updatedCart,
+            data: updatedCart,
           });
         } else {
           return res.status(404).send({
@@ -118,7 +120,7 @@ const CartController = {
           return res.status(200).send({
             success: true,
             message: "Cart updated successfully",
-            cart: updatedCart,
+            data: updatedCart,
           });
         } else {
           return res.status(404).send({

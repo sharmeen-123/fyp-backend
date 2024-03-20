@@ -30,6 +30,7 @@ const PaymentPlanController = {
         res.status(200).send({
           success: true,
           message: "new paymentPlan added successfully",
+          
           name: addNewPaymentPlan.name,
           _id: addNewPaymentPlan._id,
         });

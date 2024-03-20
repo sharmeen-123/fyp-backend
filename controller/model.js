@@ -48,7 +48,7 @@ const ModelController = {
           res.status(200).send({
             success: true,
             message: "new model added successfully",
-            model: addNewModel
+            data: addNewModel
           });
         });
       } else {
@@ -88,7 +88,7 @@ const ModelController = {
           return res.status(200).send({
             success: true,
             message: "Model updated successfully",
-            model: updatedModel,
+            data: updatedModel,
           });
         } else {
           return res.status(404).send({
@@ -133,10 +133,13 @@ const ModelController = {
         return res.status(200).send({
           success: true,
           message: "Model Found",
-          data: totalModels,
+          data: {
+          models: totalModels,
           totalModels: totalModels.length,
           defaultModels: defaultModels.length,
           companyModels: modelExists.length,
+        }
+
         });
       // } else {
       //   return res.status(400).send({

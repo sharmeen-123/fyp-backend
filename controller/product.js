@@ -20,8 +20,10 @@ const ProductController = {
         res.status(200).send({
           success: true,
           message: "new product added successfully",
-          name: addNewProduct.name,
-          _id: addNewProduct._id,
+          data:{
+            name: addNewProduct.name,
+            _id: addNewProduct._id,
+          }
         });
       });
     } catch (error) {
@@ -361,7 +363,7 @@ const ProductController = {
           code = 200;
           sendingData = {
             success: true,
-            error: "details updated successfully",
+            message: "details updated successfully",
           };
         })
         .catch((err) => {

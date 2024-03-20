@@ -41,8 +41,10 @@ const WalletController = {
         res.status(200).send({
           success: true,
           message: "new wallet added successfully",
-          name: addNewWallet.name,
-          _id: addNewWallet._id,
+          data:{
+            name: addNewWallet.name,
+            _id: addNewWallet._id,
+          }
         });
       });
     } catch (err) {

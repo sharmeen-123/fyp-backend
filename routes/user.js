@@ -5,7 +5,7 @@ const uploadMultipleFiles = require('../middleware/uploadMultipleFiles')
 
 const userRouter = express.Router();
 
-userRouter.post("/register", userController.register);
+userRouter.post("/register",uploadMiddleware.single('file'), userController.register);
 
 userRouter.put("/uploadImage/:id",uploadMiddleware.single('file'), userController.uploadImage);
 userRouter.put("/uploadDocuments/:id",uploadMultipleFiles, userController.uploadDocuments);

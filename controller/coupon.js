@@ -24,8 +24,10 @@ const CouponController = {
         res.status(200).send({
           success: true,
           message: "new coupon added successfully",
-          name: addNewCoupon.name,
-          _id: addNewCoupon._id,
+          data:{
+            name: addNewCoupon.name,
+            _id: addNewCoupon._id,
+          }
         });
       });
     } catch (err) {
@@ -74,10 +76,43 @@ const CouponController = {
         return res.status(200).send({
           success: true,
           message: "Coupon Found",
-          total : totalCoupons,
-          availed: availedCoupons,
-          collected: collectedCoupons,
-          expired: expired,
+          data:{
+            total : totalCoupons,
+            availed: availedCoupons,
+            collected: collectedCoupons,
+            expired: expired,
+            coupons: data,
+          }
+          
+        });
+      } else {
+        return res.status(400).send({
+          success: false,
+          error: "no coupons exist",
+        });
+      }
+    } catch (err) {
+      return res.status(500).send({
+        success: false,
+        error: "Some Error Occurred",
+      });
+    }
+  },
+
+   // get Coupon and payment by company id api
+   async getCouponWithCard(req, res) {
+    let { company } = req.params;
+
+    try {
+      // Find if the Coupon already exists
+      const data = await Coupon.find({
+        company,
+      }).populate("cardId");
+
+      if (data) {
+        return res.status(200).send({
+          success: true,
+          message: "Coupon Found",
           data: data,
         });
       } else {
@@ -177,8 +212,10 @@ const CouponController = {
               res.status(200).send({
                 success: true,
                 message: "coupon collected",
-                coupon: updatedCoupon,
-                wallet: addNewWallet,
+                data:{
+                  coupon: updatedCoupon,
+                  wallet: addNewWallet,
+                }
               });
             });
           }
@@ -232,7 +269,7 @@ const CouponController = {
             return res.status(200).send({
               success: true,
               message: "Coupon updated successfully",
-              coupon: updatedCoupon,
+              data: updatedCoupon,
             });
           }
         } else {

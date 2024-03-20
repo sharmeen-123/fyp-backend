@@ -74,6 +74,9 @@ const couponSchema = new Schema({
     ref: "paymentMethod",
     required: true
   },
+  InvoiceID: {
+    type: String,
+  },
   availed: {
     type: Number,
     default: 0,

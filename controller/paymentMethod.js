@@ -31,8 +31,11 @@ const PaymentMethodController = {
         res.status(200).send({
           success: true,
           message: "new paymentMethod added successfully",
-          name: addNewPaymentMethod.name,
-          _id: addNewPaymentMethod._id,
+          data:{
+
+            name: addNewPaymentMethod.name,
+            _id: addNewPaymentMethod._id,
+          }
         });
       });
     } catch (error) {

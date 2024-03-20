@@ -20,7 +20,9 @@ const ReviewController = {
         res.status(200).send({
           success: true,
           message: "new review added successfully",
-          _id: addNewReview._id,
+          data:{
+            _id: addNewReview._id,
+          }
         });
       });
     } catch (error) {
@@ -128,8 +130,10 @@ const ReviewController = {
         return res.status(200).send({
           success: true,
           message: "Review Found",
+          data:{
+            reviews:ReviewExists,
           starCount: stars,
-          data: ReviewExists,
+          }
         });
       } else {
         return res.status(400).send({

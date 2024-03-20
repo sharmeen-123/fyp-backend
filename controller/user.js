@@ -25,8 +25,9 @@ const userController = {
   async register(req, res) {
     let userData = req.body;
     try {
+      const fileBuffer = req.file ? req.file.filename : null;
       let user = new User(userData);
-
+      user.document = fileBuffer
       // Check if the email is valid
       if (!isValidEmail(user.email)) {
         console.log("Invalid email format");
@@ -80,10 +81,13 @@ const userController = {
 
         res.status(200).send({
           success: true,
-          authToken: token,
-          name: registeredUser.name,
-          email: registeredUser.email,
-          _id: registeredUser._id,
+          message: "account created successfully",
+          data: {
+            authToken: token,
+            name: registeredUser.name,
+            email: registeredUser.email,
+            _id: registeredUser._id,
+          },
         });
       });
     } catch (error) {
@@ -211,9 +215,7 @@ const userController = {
       if (companies) {
         res.status(200).send({
           success: true,
-          data: users,
-          sellers,
-          customers,
+          data: { users, sellers, customers },
         });
       } else {
         res.status(404).send({
@@ -336,11 +338,10 @@ const userController = {
   async updateUser(req, res) {
     let { id, email, phone, location, name } = req.body;
     const fileBuffer = req.file ? req.file.filename : null;
-    console.log(fileBuffer)
+    console.log(fileBuffer);
     // update user
     try {
-      if(fileBuffer != null){
-      
+      if (fileBuffer != null) {
         let updatedUser = await User.findOneAndUpdate(
           { _id: id },
           {
@@ -348,7 +349,7 @@ const userController = {
             email,
             contact: phone,
             location,
-            image: fileBuffer
+            image: fileBuffer,
           }
         );
         const pathh = path.join(__dirname, "../public/", updatedUser.image);
@@ -358,33 +359,33 @@ const userController = {
             return;
           }
         });
+      } else {
+        let updatedUser = await User.findOneAndUpdate(
+          { _id: id },
+          {
+            name,
+            email,
+            contact: phone,
+            location,
+          }
+        );
       }
-        else{
-          let updatedUser = await User.findOneAndUpdate(
-            { _id: id },
-            {
-              name,
-              email,
-              contact: phone,
-              location
-            }
-          );
-        }
-        
-        let update = await User.find({
-          _id: id
-         });
 
-        if (!update) {
-          res.status(400).send({
-            success: false,
-            error: "user not updated, try again",
-          });
-        } else {
-          token = jwt.sign({ _id: update._id }, process.env.TOKEN_SECRET);
-          return res.status(200).send({
-            success: true,
-            message: "data updated successfully",
+      let update = await User.find({
+        _id: id,
+      });
+
+      if (!update) {
+        res.status(400).send({
+          success: false,
+          error: "user not updated, try again",
+        });
+      } else {
+        token = jwt.sign({ _id: update._id }, process.env.TOKEN_SECRET);
+        return res.status(200).send({
+          success: true,
+          message: "data updated successfully",
+          data: {
             authToken: token,
             name: update[0].name,
             email: update[0].email,
@@ -392,8 +393,9 @@ const userController = {
             image: update[0].image,
             location: update[0].location,
             contact: update[0].contact,
-          });
-        }
+          },
+        });
+      }
     } catch (error) {
       res.status(500).send({
         success: false,
@@ -500,7 +502,7 @@ const userController = {
       if (!founduser) {
         return res.status(404).send({
           success: false,
-          error: "Email is Wrong",
+          error: "User with this email donot exists",
         });
       } else if (!founduser.verified) {
         return res.status(404).send({
@@ -525,13 +527,15 @@ const userController = {
       return res.status(200).send({
         success: true,
         message: "logged in successfully",
-        authToken: token,
-        name: founduser.name,
-        email: founduser.email,
-        _id: founduser._id,
-        image: founduser.image,
-        location: founduser.location,
-        contact: founduser.contact,
+        data: {
+          authToken: token,
+          name: founduser.name,
+          email: founduser.email,
+          _id: founduser._id,
+          image: founduser.image,
+          location: founduser.location,
+          contact: founduser.contact,
+        },
       });
     } catch (err) {
       console.log(err);
@@ -785,11 +789,12 @@ const userController = {
       const user = await User.findOne({
         email,
       });
+      console.log(user)
 
       if (!user) {
         return res.status(404).json({
           success: false,
-          error: "Email is not registered",
+          error: "Email not found",
         });
       } else {
         const checkExpiry = await User.findOne({
