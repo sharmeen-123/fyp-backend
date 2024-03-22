@@ -28,7 +28,6 @@ const ProductController = {
       });
     } catch (error) {
       // Handle any unexpected errors
-      console.error("Error in Model function:", error);
       res.status(500).send({
         success: false,
         error: "Internal server error",
@@ -85,7 +84,6 @@ const ProductController = {
         success: true,
       });
     } catch (error) {
-      console.error(error);
       return res.status(404).send({
         error: error.response,
         success: false,
@@ -149,7 +147,6 @@ const ProductController = {
     }
     } catch (error) {
       // Handle any unexpected errors
-      console.error("Error in Model function:", error);
       res.status(500).send({
         success: false,
         error: "Internal server error",
@@ -183,7 +180,35 @@ const ProductController = {
       }
     } catch (error) {
       // Handle any unexpected errors
-      console.error("Error in Model function:", error);
+      res.status(500).send({
+        success: false,
+        error: "Internal server error",
+      });
+    }
+  },
+
+   // get Product api
+   async getDiscountProduct(req, res) {
+    try {
+
+      // Find if the Product already exists
+      const productExists = await Product.find({ discount: { $gt: 0 } });
+
+
+      if (productExists.length > 0) {
+        return res.status(200).send({
+          success: true,
+          message: "Product Found",
+          data: productExists,
+        });
+      } else {
+        return res.status(400).send({
+          success: false,
+          error: "No product is available with discount",
+        });
+      }
+    } catch (error) {
+      // Handle any unexpected errors
       res.status(500).send({
         success: false,
         error: "Internal server error",
@@ -211,7 +236,6 @@ const ProductController = {
       }
     } catch (error) {
       // Handle any unexpected errors
-      console.error("Error in Model function:", error);
       res.status(500).send({
         success: false,
         error: "Internal server error",
@@ -242,7 +266,6 @@ const ProductController = {
       }
     } catch (error) {
       // Handle any unexpected errors
-      console.error("Error in Model function:", error);
       res.status(500).send({
         success: false,
         error: "Internal server error",
@@ -272,7 +295,6 @@ const ProductController = {
       }
     } catch (error) {
       // Handle any unexpected errors
-      console.error("Error in Model function:", error);
       res.status(500).send({
         success: false,
         error: "Internal server error",
@@ -313,7 +335,6 @@ const ProductController = {
       }
     } catch (error) {
       // Handle any unexpected errors
-      console.error("Error in Model function:", error);
       res.status(500).send({
         success: false,
         error: "Internal server error",
@@ -379,7 +400,6 @@ const ProductController = {
       });
     } catch (error) {
       // Handle any unexpected errors
-      console.error("Error in Model function:", error);
       res.status(500).send({
         success: false,
         error: "Internal server error",

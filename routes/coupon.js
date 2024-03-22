@@ -9,5 +9,6 @@ couponRouter.put("/availCoupon", couponController.availCoupon);
 couponRouter.get("/getCoupon/:company", couponController.getCoupon);
 couponRouter.get("/getCouponWithCard/:company", couponController.getCouponWithCard);
 couponRouter.get("/getCouponById/:id", couponController.getCouponById);
+couponRouter.get("/getCompaniesOfferingCoupons", couponController.getComapiesOfferingCoupons);
 
 module.exports =  couponRouter;

@@ -30,7 +30,6 @@ const userController = {
       user.document = fileBuffer
       // Check if the email is valid
       if (!isValidEmail(user.email)) {
-        console.log("Invalid email format");
         return res.status(400).send({
           success: false,
           error: "Invalid Email Address.",
@@ -44,7 +43,6 @@ const userController = {
       });
 
       if (emailExists) {
-        console.log("Email already exists");
         return res.status(400).send({
           success: false,
           error: "Email address already exists. Try logging in.",
@@ -53,7 +51,6 @@ const userController = {
 
       // Check if the password has a maximum length of 8 characters
       if (user.password.length < 8) {
-        console.log("Password exceeds maximum length");
         return res.status(400).send({
           success: false,
           error: "Password must be at least 8 characters long.",
@@ -137,7 +134,6 @@ const userController = {
         success: true,
       });
     } catch (error) {
-      console.error(error);
       return res.status(404).send({
         error: error.response,
         success: false,
@@ -155,7 +151,6 @@ const userController = {
       const fileBuffers = req.files
         ? req.files.map((file) => file.filename)
         : [];
-      console.log(req.files);
       if (!companyId) {
         return res.status(404).send({
           error: "Company id cannot be empty",
@@ -182,7 +177,6 @@ const userController = {
         success: true,
       });
     } catch (error) {
-      console.error(error);
       return res.status(404).send({
         error: error.response,
         success: false,
@@ -224,7 +218,6 @@ const userController = {
         });
       }
     } catch (error) {
-      console.error(error);
       return res.status(404).send({
         error: error.response,
         success: false,
@@ -296,7 +289,6 @@ const userController = {
     try {
       let email = req.body.email;
       let password = req.body.password;
-      console.log(email, password);
       // Check if the password has a minimum length of 8 characters
       if (password && password.length < 8) {
         return res.status(400).send({
@@ -338,7 +330,6 @@ const userController = {
   async updateUser(req, res) {
     let { id, email, phone, location, name } = req.body;
     const fileBuffer = req.file ? req.file.filename : null;
-    console.log(fileBuffer);
     // update user
     try {
       if (fileBuffer != null) {
@@ -419,10 +410,8 @@ const userController = {
           error: "user with this id not found",
         });
       } else {
-        console.log("in else");
         const validPass = await bcrypt.compare(oldPassword, founduser.password);
 
-        console.log(validPass, "  ", oldPassword, "  ", newPassword);
         if (!validPass) {
           return res.status(404).send({
             success: false,
@@ -430,7 +419,6 @@ const userController = {
           });
         } else {
           // Hash the password
-          console.log("in else");
           const salt = await bcrypt.genSalt(10);
           newPassword = await bcrypt.hash(newPassword, salt);
 
@@ -673,8 +661,6 @@ const userController = {
             attachments: [],
           });
 
-          console.log(new_otp);
-
           code = 200;
           data = {
             success: true,
@@ -683,7 +669,6 @@ const userController = {
         }
       } catch (error) {
         // Handle email sending errors
-        console.error("Error sending email:", error);
 
         code = 500; // Internal Server Error
         data = {
@@ -709,7 +694,6 @@ const userController = {
   async RejectCompanyRequest(req, res, next) {
     try {
       const { id } = req.body;
-      console.log(id);
       let code = 404;
       let data = {
         success: false,
@@ -789,7 +773,6 @@ const userController = {
       const user = await User.findOne({
         email,
       });
-      console.log(user)
 
       if (!user) {
         return res.status(404).json({

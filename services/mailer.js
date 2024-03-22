@@ -3,7 +3,6 @@ const dotenv = require("dotenv");
 dotenv.config();
 // console.log("api key", process.env.MAIL_API_KEY  )
 
-sgMail.setApiKey(process.env.MAIL_API_KEY);
 
 const sendSGMail = async ({
   to,
@@ -14,6 +13,7 @@ const sendSGMail = async ({
   text,
 }) => {
   try {
+    sgMail.setApiKey(process.env.MAIL_API_KEY);
     const from = "fa20-bcs-088@isbstudent.comsats.edu.pk";
 
     const msg = {

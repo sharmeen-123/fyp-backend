@@ -5,7 +5,6 @@ const CouponController = {
   // addCoupon api
   async addCoupon(req, res) {
     let CouponData = req.body;
-    console.log(req.body);
     const date = new Date();
     CouponData.issueDate = date;
     CouponData.unCollected = CouponData.distributedCoupons;
@@ -68,9 +67,7 @@ const CouponController = {
 
 
     if (!isNaN(expiryDate.getTime()) && expiryy < current) {
-        expired += val.unCollected;
-        console.log("Expiry Date:", expiryy, "Current Date:",current );
- 
+        expired += val.unCollected; 
     }
         });
         return res.status(200).send({
@@ -151,6 +148,52 @@ const CouponController = {
           error: "Coupon with this name do not exists",
         });
       }
+    } catch (err) {
+      return res.status(500).send({
+        success: false,
+        error: "Some Error Occurred",
+      });
+    }
+  },
+
+  // get Coupon by id api
+  async getComapiesOfferingCoupons(req, res) {
+
+    try {
+      // Find if the Coupon already exists
+      const data = await Coupon.aggregate([
+        {
+            $group: {
+                _id: '$company',
+                company: { $first: '$company' }
+            }
+        },
+        {
+            $lookup: {
+                from: 'users', // Assuming 'companies' is the name of your companies collection
+                localField: 'company',
+                foreignField: '_id',
+                as: 'company_details'
+            }
+        },
+        {
+            $unwind: '$company_details'
+        },
+        {
+            $replaceRoot: { newRoot: '$company_details' }
+        }
+    ]);
+    
+    // Now data will contain an array of objects, each representing a unique company.
+    
+
+      if (data) 
+        return res.status(200).send({
+          success: true,
+          message: "Coupon Found",
+          data: data,
+        })
+
     } catch (err) {
       return res.status(500).send({
         success: false,
