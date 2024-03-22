@@ -10,10 +10,13 @@ productRouter.get("/getProduct/:category/:company", productController.getProduct
 productRouter.get("/getAllProduct", productController.getAllProducts);
 productRouter.get("/getProductById/:product", productController.getProductById);
 productRouter.put("/uploadImages/:id",uploadMultipleFiles, productController.uploadImages);
+
+productRouter.put("/addRemoveFavourite/:id",productController.addRemoveFavourite);
 productRouter.put("/updateProduct/:id",uploadMultipleFiles, productController.editProduct);
 productRouter.delete("/deleteProduct/:id", productController.deleteProduct);
 productRouter.get("/getCompanyTotalProduct/:company", productController.totalCompanyProduct);
 productRouter.get("/getProductsWithDiscount", productController.getDiscountProduct);
+productRouter.get("/getFavouriteProducts/:user", productController.getFavouriteProducrs);
 
 productRouter.put("/uploadImages3D/:id", (req, res, next) => {
   const currentDate = new Date();

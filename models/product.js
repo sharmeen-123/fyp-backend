@@ -31,6 +31,9 @@ const productSchema = new Schema({
   discount: {
     type: Number,
   },
+  favourites:{
+    type: Array
+  },
   colors: {
     type: Array
   },
