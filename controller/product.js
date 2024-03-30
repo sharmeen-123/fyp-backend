@@ -189,7 +189,7 @@ const ProductController = {
   async getDiscountProduct(req, res) {
     try {
       // Find if the Product already exists
-      const productExists = await Product.find({ discount: { $gt: 0 } }).populate("category").sort({ createdAt: -1 });;
+      const productExists = await Product.find({ discount: { $gt: 0 } }).populate("category").populate("company").sort({ createdAt: -1 });;
 
       if (productExists.length > 0) {
         return res.status(200).send({
@@ -216,7 +216,7 @@ const ProductController = {
   async getAllProducts(req, res) {
     try {
       // Find all products
-      const productExists = await Product.find({}).populate("category").sort({ createdAt: -1 });;
+      const productExists = await Product.find({}).populate("category").populate("company").sort({ createdAt: -1 });;
 
       if (productExists.length > 0) {
         return res.status(200).send({
