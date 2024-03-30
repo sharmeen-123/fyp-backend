@@ -49,7 +49,7 @@ const CouponController = {
       // Find if the Coupon already exists
       const data = await Coupon.find({
         company,
-      });
+      }).sort({ issueDate : -1 });
 
       if (data) {
         const currentDate = new Date();
@@ -104,7 +104,7 @@ const CouponController = {
       // Find if the Coupon already exists
       const data = await Coupon.find({
         company,
-      }).populate("cardId");
+      }).populate("cardId").sort({ issueDate : -1 });
 
       if (data) {
         return res.status(200).send({

@@ -54,19 +54,13 @@ const CategoryController = {
       if (categoryExists.length > 0) {
         const data = [];
         categoryExists.map((val, ind) => {
-          if (ind == 0) {
-            data.push({
-              name: val.name,
-              _id: val._id,
-              selected: true,
-            });
-          } else {
+          
             data.push({
               name: val.name,
               _id: val._id,
               selected: false,
             });
-          }
+          
         });
         return res.status(200).send({
           success: true,

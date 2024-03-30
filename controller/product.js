@@ -161,7 +161,7 @@ const ProductController = {
       const productExists = await Product.find({
         category,
         company,
-      });
+      }).sort({ createdAt: -1 });;
 
       if (productExists.length > 0) {
         return res.status(200).send({
@@ -184,11 +184,12 @@ const ProductController = {
     }
   },
 
+  
   // get Product api
   async getDiscountProduct(req, res) {
     try {
       // Find if the Product already exists
-      const productExists = await Product.find({ discount: { $gt: 0 } });
+      const productExists = await Product.find({ discount: { $gt: 0 } }).populate("category").sort({ createdAt: -1 });;
 
       if (productExists.length > 0) {
         return res.status(200).send({
@@ -215,7 +216,7 @@ const ProductController = {
   async getAllProducts(req, res) {
     try {
       // Find all products
-      const productExists = await Product.find({});
+      const productExists = await Product.find({}).populate("category").sort({ createdAt: -1 });;
 
       if (productExists.length > 0) {
         return res.status(200).send({
@@ -274,13 +275,13 @@ const ProductController = {
     try {
       const productExists = await Product.find({
         company,
-      });
+      }).sort({ createdAt: -1 });
 
       if (productExists) {
         return res.status(200).send({
           success: true,
           message: "Product Found",
-          data: productExists.length,
+          data: productExists,
         });
       } else {
         return res.status(400).send({
@@ -445,7 +446,7 @@ const ProductController = {
     try {
       const productExists = await Product.find({
         favourites: { $in: [user] }
-    });
+    }).sort({ createdAt: -1 });
     
 
       if (productExists) {

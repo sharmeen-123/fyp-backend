@@ -49,6 +49,10 @@ const productSchema = new Schema({
   rating:{
     type: Number,
     default: 0,
+  },
+  createdAt:{
+    type: Date,
+    default: Date.now  
   }
 });
 module.exports = mongoose.model("product", productSchema, "products");
