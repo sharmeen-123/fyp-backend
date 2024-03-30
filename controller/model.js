@@ -117,7 +117,6 @@ const ModelController = {
     
     try {
       let company = req.params.company;
-      console.log("company",company)
 
       // Find if the Model already exists
       const modelExists = await Model.find({
@@ -127,7 +126,7 @@ const ModelController = {
         default: true,
       });
 
-      const totalModels = [...modelExists, ...defaultModels];
+      const totalModels = [ ...defaultModels,...modelExists];
 
       // if (totalModels.length > 0) {
         return res.status(200).send({
@@ -161,15 +160,23 @@ const ModelController = {
   async getdefaultModels(req, res) {
     // Find all models
     try{
+      const allModels = await Model.find({
+      });
     const modelExists = await Model.find({
       default: true,
     });
 
-    if (modelExists.length > 0) {
+    if (modelExists) {
       return res.status(200).send({
         success: true,
         message: "Model Found",
-        data: modelExists,
+        data: {
+          models: modelExists,
+          totalModels : allModels.length,
+          companyModels : allModels.length - modelExists.length,
+          defaultModels: modelExists.length
+
+        },
       });
     } else {
       return res.status(400).send({
@@ -195,7 +202,6 @@ const ModelController = {
       const modelDeleted = await Model.findOneAndDelete({
         _id: id,
       });
-      console.log("deleted model is",modelDeleted)
       if (modelDeleted) {
 
         const pathh = path.join(__dirname, `../public/${modelDeleted.image}`);

@@ -5,7 +5,6 @@ const PaymentMethodController = {
   async addPaymentMethod(req, res) {
     try {
       let PaymentMethodData = req.body;
-      console.log("payment method", PaymentMethodData);
       let paymentMethod = new PaymentMethod(PaymentMethodData);
 
       // Find if the PaymentMethod already exists
@@ -54,7 +53,6 @@ const PaymentMethodController = {
     try {
       // Find if the PaymentMethod already exists
       const paymentMethodExists = await PaymentMethod.find({ user });
-      console.log(paymentMethodExists, "user", user);
 
       if (paymentMethodExists) {
         return res.status(200).send({
@@ -114,7 +112,6 @@ const PaymentMethodController = {
       const id = req.params.id;
       const company = req.params.company;
 
-      console.log(id, "company", company)
 
       if (!id) {
         res.status(400).send({
@@ -134,7 +131,6 @@ const PaymentMethodController = {
       );
       
       if (setDefaultt) {
-          console.log("updated method is", setDefaultt);
           // Send only the necessary properties of the object in the response
           res.status(200).send({
               success: true,

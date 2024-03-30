@@ -110,7 +110,6 @@ const PaymentPlanController = {
         noOfCoupons,
         amount
       } = req.body;
-      console.log(id, req.body)
 
       if (!id) {
         code = 400;

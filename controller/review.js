@@ -45,7 +45,6 @@ const ReviewController = {
       const fileBuffers = req.files
         ? req.files.map((file) => file.filename)
         : [];
-      console.log(req.files);
       if (!reviewId) {
         return res.status(404).send({
           error: "review id cannot be empty",

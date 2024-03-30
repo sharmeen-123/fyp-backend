@@ -48,8 +48,6 @@ const CategoryController = {
   async getCategory(req, res) {
     let { name } = req.body;
     try {
-      console.log(name);
-
       // Find if the Category already exists
       const categoryExists = await Category.find({});
 
@@ -74,6 +72,7 @@ const CategoryController = {
           success: true,
           message: "Category Found",
           data: data,
+          categories : categoryExists
         });
       } else {
         return res.status(400).send({

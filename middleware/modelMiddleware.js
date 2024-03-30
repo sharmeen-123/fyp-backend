@@ -9,7 +9,6 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     let uploadDir;
     let uploadDir2;
-    console.log("req ",req.folder)
     const formattedDate = req .folder
 
     uploadDir = path.join(__dirname, `../public/${formattedDate}`);

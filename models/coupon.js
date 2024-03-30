@@ -72,7 +72,6 @@ const couponSchema = new Schema({
   cardId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "paymentMethod",
-    required: true
   },
   InvoiceID: {
     type: String,
@@ -83,7 +82,7 @@ const couponSchema = new Schema({
   },
   amount:{
     type: Number,
-    required: true,
+    default:0
   },
   collected: {
     type: Number,

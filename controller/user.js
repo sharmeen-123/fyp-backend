@@ -523,6 +523,7 @@ const userController = {
           image: founduser.image,
           location: founduser.location,
           contact: founduser.contact,
+          type: founduser.type,
         },
       });
     } catch (err) {
