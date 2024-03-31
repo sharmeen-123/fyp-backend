@@ -274,7 +274,7 @@ const ProductController = {
       // Find all products
       const productExists = await Product.find({
         _id: product,
-      });
+      }).populate("category").populate("company");
 
       if (productExists.length > 0) {
         return res.status(200).send({
@@ -303,7 +303,7 @@ const ProductController = {
     try {
       const productExists = await Product.find({
         company,
-      }).sort({ createdAt: -1 });
+      }).populate("category").populate("company").sort({ createdAt: -1 });
 
       if (productExists) {
         return res.status(200).send({
@@ -474,7 +474,7 @@ const ProductController = {
     try {
       const productExists = await Product.find({
         favourites: { $in: [user] }
-    }).sort({ createdAt: -1 });
+    }).populate("category").populate("company").sort({ createdAt: -1 });
     
 
       if (productExists) {
