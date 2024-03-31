@@ -126,6 +126,43 @@ const CouponController = {
     }
   },
 
+   // get Coupon that can be collected
+   async getCoupontoCollect(req, res) {
+    let { user } = req.params;
+
+    console.log("user is", user)
+    try {
+      // Find if the Coupon already exists
+      const data = await Coupon.find({
+        expiry: { $gt: new Date() }, // Expiry date greater than today
+        unCollected: { $gt: 0 }, // Uncollected count greater than 0
+        locations: {
+            $not: {
+                $elemMatch: { user: user } // User not in the array of locations
+            }
+        }
+    }).sort({ issueDate: -1 });
+
+      if (data.length > 0) {
+        return res.status(200).send({
+          success: true,
+          message: "Coupon Found",
+          data: data,
+        });
+      } else {
+        return res.status(400).send({
+          success: false,
+          error: "no coupons exist",
+        });
+      }
+    } catch (err) {
+      return res.status(500).send({
+        success: false,
+        error: "Some Error Occurred",
+      });
+    }
+  },
+
   // get Coupon by id api
   async getCouponById(req, res) {
     let { id } = req.params;
@@ -230,13 +267,18 @@ const CouponController = {
         let index = locations.findIndex(findCoupon);
         function findCoupon(location) {
           let ind =
-            location.lng == lng && location.lat == lat && !location.user;
+            location.lng == lng && location.lat == lat && !location.collected;
+          
           return ind;
         }
+        console.log("index is", index)
+
 
         if (index != -1) {
           locations[index].collected = true;
           locations[index].user = user;
+
+          console.log("in if", locations[index])
           const updatedCoupon = await Coupon.findOneAndUpdate(
             { _id: id },
             { locations, collected, unCollected, distributedCoupons },

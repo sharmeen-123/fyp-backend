@@ -5,6 +5,7 @@ const fs = require("fs");
 const ModelController = {
   // addModel api
   async addModel(req, res, next) {
+    
     try {
       const folderBuffer =
         req.files.length > 0 ? req.files[0].destination : null;

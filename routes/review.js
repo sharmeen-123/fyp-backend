@@ -7,6 +7,6 @@ const reviewRouter = express.Router();
 
 reviewRouter.post("/addReview", reviewController.addReview);
 reviewRouter.put("/addImages",uploadMultipleFiles, reviewController.uploadImages);
-reviewRouter.get("/getReview", reviewController.getReview);
+reviewRouter.get("/getReview/:product", reviewController.getReview);
 
 module.exports =  reviewRouter;

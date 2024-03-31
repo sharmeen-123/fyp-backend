@@ -146,20 +146,20 @@ const CartController = {
 
   // .......................................get Cart api.........................................
   async getCart(req, res) {
-    let { user } = req.body;
+    let { user } = req.params;
     try{
 
     // Find if the Cart already exists
     const CartExists = await Cart.find({
       user,
-    });
+    }).populate("user").populate({ path: "products", populate: { path: "product" } });
 
     if (CartExists.length > 0) {
       return res.status(200).send({
         success: true,
         message: "Cart Found",
         data: CartExists,
-      });
+      })
     } else {
       return res.status(400).send({
         success: false,

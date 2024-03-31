@@ -161,7 +161,7 @@ const ProductController = {
       const productExists = await Product.find({
         category,
         company,
-      }).sort({ createdAt: -1 });;
+      }).populate("category").populate("company").sort({ createdAt: -1 });;
 
       if (productExists.length > 0) {
         return res.status(200).send({
@@ -201,6 +201,34 @@ const ProductController = {
         return res.status(400).send({
           success: false,
           error: "No product is available with discount",
+        });
+      }
+    } catch (error) {
+      // Handle any unexpected errors
+      res.status(500).send({
+        success: false,
+        error: "Internal server error",
+      });
+    }
+  },
+
+  // products without discount
+   // get Product api
+   async getProductWithoutDiscount(req, res) {
+    try {
+      // Find if the Product already exists
+      const productExists = await Product.find({ discount: 0 }).populate("category").populate("company").sort({ createdAt: -1 });;
+
+      if (productExists.length > 0) {
+        return res.status(200).send({
+          success: true,
+          message: "Product Found",
+          data: productExists,
+        });
+      } else {
+        return res.status(400).send({
+          success: false,
+          error: "No product is available without discount",
         });
       }
     } catch (error) {

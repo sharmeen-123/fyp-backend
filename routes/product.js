@@ -18,6 +18,9 @@ productRouter.put("/updateProduct/:id",uploadMultipleFiles, productController.ed
 productRouter.delete("/deleteProduct/:id", productController.deleteProduct);
 productRouter.get("/getCompanyTotalProduct/:company", productController.totalCompanyProduct);
 productRouter.get("/getProductsWithDiscount", productController.getDiscountProduct);
+
+productRouter.get("/getProductsWithoutDiscount", productController.getProductWithoutDiscount);
+
 productRouter.get("/getFavouriteProducts/:user", productController.getFavouriteProducrs);
 
 productRouter.put("/uploadImages3D/:id", (req, res, next) => {

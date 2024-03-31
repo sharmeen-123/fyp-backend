@@ -1,5 +1,4 @@
 const Wallet = require("../models/wallet");
-const Wallet = require("../models/wallet");
 
 const WalletController = {
   // addWallet api
@@ -57,13 +56,13 @@ const WalletController = {
 
   // get Wallet by company id api
   async getWallet(req, res) {
-    let { company } = req.params;
+    let { user } = req.params;
 
     try {
       // Find if the Wallet already exists
       const data = await Wallet.find({
-        company,
-      });
+        user,
+      }).populate('coupon').populate("user");
 
       if (data.length > 0) {
         return res.status(200).send({

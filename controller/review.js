@@ -98,7 +98,7 @@ const ReviewController = {
   // .......................................get Review api.........................................
   async getReview(req, res) {
     try {
-      let { product } = req.body;
+      let { product } = req.params;
 
       // Find if the Review already exists
       const ReviewExists = await Review.find({
