@@ -1,0 +1,11 @@
+Model Information:
+* title:	Brothers shoe
+* source:	https://sketchfab.com/3d-models/brothers-shoe-4268eb4870a045478cce51461f31a413
+* author:	Nevena Knežević (https://sketchfab.com/gavez)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Brothers shoe" (https://sketchfab.com/3d-models/brothers-shoe-4268eb4870a045478cce51461f31a413) by Nevena Knežević (https://sketchfab.com/gavez) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

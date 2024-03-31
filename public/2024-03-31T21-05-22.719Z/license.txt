@@ -1,0 +1,11 @@
+Model Information:
+* title:	SHIRT
+* source:	https://sketchfab.com/3d-models/shirt-cfcfa84fa9d441c59e8047ffe3d539f4
+* author:	KRM260 (https://sketchfab.com/KRM260)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "SHIRT" (https://sketchfab.com/3d-models/shirt-cfcfa84fa9d441c59e8047ffe3d539f4) by KRM260 (https://sketchfab.com/KRM260) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

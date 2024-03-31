@@ -1,0 +1,11 @@
+Model Information:
+* title:	lg fridge
+* source:	https://sketchfab.com/3d-models/lg-fridge-5de5d2a82a8845fd951e0fdc4674b864
+* author:	K- (https://sketchfab.com/K-)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "lg fridge" (https://sketchfab.com/3d-models/lg-fridge-5de5d2a82a8845fd951e0fdc4674b864) by K- (https://sketchfab.com/K-) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

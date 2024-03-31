@@ -1,0 +1,8 @@
+Model Information:
+* title:	Tyre
+* source:	https://sketchfab.com/3d-models/tyre-095f8a7f6ea84961bb6e765c6cad35a1
+* author:	Rookster (https://sketchfab.com/Rookster)
+
+Model License:
+* license type:	SKETCHFAB Standard (https://sketchfab.com/licenses)
+* requirements:	Under basic restrictions, use worldwide, on all types of media, commercially or not, and in all types of derivative works

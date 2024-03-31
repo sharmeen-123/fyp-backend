@@ -51,7 +51,7 @@ const CategoryController = {
       // Find if the Category already exists
       const categoryExists = await Category.find({}).sort({ createdAt : -1 });
 
-      if (categoryExists.length > 0) {
+      if (categoryExists) {
         const data = [];
         categoryExists.map((val, ind) => {
           
