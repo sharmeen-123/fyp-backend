@@ -99,13 +99,14 @@ const ReviewController = {
   async getReview(req, res) {
     try {
       let { product } = req.params;
+      console.log("prod", product)
 
       // Find if the Review already exists
       const ReviewExists = await Review.find({
         product,
-      });
+      }).populate('user').sort({ createdAt : -1 });
 
-      if (ReviewExists.length > 0) {
+      if (ReviewExists) {
         let stars = {
           fiveStar: 0,
           fourStar: 0,

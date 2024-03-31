@@ -49,7 +49,7 @@ const CategoryController = {
     let { name } = req.body;
     try {
       // Find if the Category already exists
-      const categoryExists = await Category.find({});
+      const categoryExists = await Category.find({}).sort({ createdAt : -1 });
 
       if (categoryExists.length > 0) {
         const data = [];
