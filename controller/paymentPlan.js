@@ -104,12 +104,7 @@ const PaymentPlanController = {
    async editPaymentPlan(req, res) {
     try {
       const id = req.params.id;
-      const {
-        name,
-        radius,
-        noOfCoupons,
-        amount
-      } = req.body;
+     
 
       if (!id) {
         code = 400;
@@ -121,12 +116,7 @@ const PaymentPlanController = {
 
       const plan = await PaymentPlan.findOneAndUpdate(
         { _id: id },
-        {
-          name,
-          radius, 
-          noOfCoupons,
-          amount
-        }
+        req.body
       )
         .then((res) => {
           code = 200;

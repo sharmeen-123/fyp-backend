@@ -150,9 +150,17 @@ const CartController = {
     try{
 
     // Find if the Cart already exists
-    const CartExists = await Cart.find({
-      user,
-    }).populate("user").populate({ path: "products", populate: { path: "product" } });
+    const CartExists = await Cart.find({ user })
+  .populate("user")
+  .populate({
+    path: "products",
+    populate: {
+      path: "product",
+      populate: {
+        path: "company"  // Assuming the field name in the product schema referencing the company is "company"
+      }
+    }
+  });
 
     if (CartExists.length > 0) {
       return res.status(200).send({

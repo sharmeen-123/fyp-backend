@@ -122,10 +122,10 @@ const ModelController = {
       // Find if the Model already exists
       const modelExists = await Model.find({
         companyId: company,
-      });
+      }).sort({ createdAt : -1 });
       const defaultModels = await Model.find({
         default: true,
-      });
+      }).sort({ createdAt : -1 });
 
       const totalModels = [ ...defaultModels,...modelExists];
 
@@ -162,10 +162,10 @@ const ModelController = {
     // Find all models
     try{
       const allModels = await Model.find({
-      });
+      }).sort({ createdAt : -1 });
     const modelExists = await Model.find({
       default: true,
-    });
+    }).sort({ createdAt : -1 });
 
     if (modelExists) {
       return res.status(200).send({

@@ -6,7 +6,7 @@ const paymentPlanSchema = new Schema({
     type: String,
     required: true,
   },
-  radius: {
+  maxAmount: {
     type: Number,
     required: true,
   },

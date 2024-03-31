@@ -9,7 +9,7 @@ const couponRouter = require("./coupon")
 const paymentMethodRouter = require("./paymentMethod")
 const paymentPlanRouter = require("./paymentPlan")
 const stripe = require("./stripe")
-
+const dashboardRouter = require("./dashboard")
 const walletRouter = require("./wallet")
 const pathh = require('./getAbsolutePath')
 const authGuard = require("../middleware/authGuard");
@@ -35,6 +35,7 @@ router.use('/payments', paymentMethodRouter);
 router.use('/wallet', walletRouter);
 router.use('/plans', paymentPlanRouter);
 router.use('/stripe', stripe);
+router.use('/dashboard', dashboardRouter);
 
 router.use('/images', pathh);
 
