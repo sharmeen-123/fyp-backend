@@ -127,12 +127,16 @@ const ReviewController = {
             stars.oneStar += 1;
           }
         });
+
+        let sumOfWeight = stars.fiveStar*5 + stars.fourStar*4 + stars.threeStar*3 + stars.twoStar*2 + stars.oneStar
+        let star = Math.floor(sumOfWeight / ReviewExists.length);
         return res.status(200).send({
           success: true,
           message: "Review Found",
           data:{
             reviews:ReviewExists,
           starCount: stars,
+          avgStar: star
           }
         });
       } else {
