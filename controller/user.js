@@ -399,6 +399,8 @@ const userController = {
   async changePassword(req, res) {
     let { id, oldPassword, newPassword } = req.body;
 
+    console.log("id is",id, req.body)
+
     try {
       const founduser = await User.findOne({
         _id: id,
