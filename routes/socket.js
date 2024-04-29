@@ -25,7 +25,7 @@ function initSocket(io) {
     });
 
    
-    // Function to get all users with whom a person has chatted
+// Function to get all users with whom a person has chatted, along with their last chat
 socket.on("getChattedUsers", async (personId) => {
   try {
     // Find distinct sender IDs where the person ID matches the receiver
@@ -40,14 +40,40 @@ socket.on("getChattedUsers", async (personId) => {
     const chattedUsersArray = Array.from(chattedUsersSet);
 
     // Populate the sender and receiver fields
-    const populatedUsers = await User.find({ _id: { $in: chattedUsersArray } }).populate("sender").populate("receiver");
+    const populatedUsers = await User.find({ _id: { $in: chattedUsersArray } })
+      .populate("sender")
+      .populate("receiver");
+
+    let chats = []
+
+    // Retrieve the last chat for each user
+    for (let user of populatedUsers) {
+      // Find the last chat where the user is either sender or receiver
+      let lastChat = await Chat.findOne({
+        $or: [
+          { sender: user._id },
+          { receiver: user._id }
+        ]
+      }).sort({ createdAt: -1 });
+
+      // Attach the last chat to the user object
+      chats.push(
+        {user_id: user._id,
+          name: user.name,
+          image: user.image,
+          chat: lastChat.message,
+          date: lastChat.date})
+      user.lastChat = lastChat;
+      console.log(lastChat, "user", chats)
+    }
 
     // Emit the populated chatted users to the client
-    socket.emit("chattedUsers", populatedUsers);
+    socket.emit("chattedUsers", chats);
   } catch (error) {
     console.error("Error retrieving chatted users:", error);
   }
 });
+
 
 
 
