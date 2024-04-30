@@ -1,10 +1,8 @@
 const Chat = require("../models/chat"); // Import the chat model
-const User = require("../models/user")
+const User = require("../models/user");
 
 function initSocket(io) {
   io.on("connection", (socket) => {
-    console.log("socket connected... id  : " + socket.id);
-
     // Function to send a chat message
     socket.on("sendChat", async (data) => {
       console.log("data is", data);
@@ -24,77 +22,126 @@ function initSocket(io) {
       }
     });
 
-   
-// Function to get all users with whom a person has chatted, along with their last chat
-socket.on("getChattedUsers", async (personId) => {
-  try {
-    // Find distinct sender IDs where the person ID matches the receiver
-    const senders = await Chat.distinct("sender", { receiver: personId });
-    // Find distinct receiver IDs where the person ID matches the sender
-    const receivers = await Chat.distinct("receiver", { sender: personId });
+    // Function to get all users with whom a person has chatted, along with their last chat
+    socket.on("getChattedUsers", async (personId) => {
+      try {
+        // Find distinct sender IDs where the person ID matches the receiver
+        const senders = await Chat.distinct("sender", { receiver: personId });
+        // Find distinct receiver IDs where the person ID matches the sender
+        const receivers = await Chat.distinct("receiver", { sender: personId });
 
-    // Create a Set to store unique user IDs
-    const chattedUsersSet = new Set([...senders, ...receivers]);
+        // Create a Set to store unique user IDs
+        const chattedUsersSet = new Set([...senders, ...receivers]);
 
-    // Convert the Set back to an array
-    const chattedUsersArray = Array.from(chattedUsersSet);
+        // Convert the Set back to an array
+        const chattedUsersArray = Array.from(chattedUsersSet);
 
-    // Populate the sender and receiver fields
-    const populatedUsers = await User.find({ _id: { $in: chattedUsersArray } })
-      .populate("sender")
-      .populate("receiver");
+        // Populate the sender and receiver fields
+        const populatedUsers = await User.find({
+          _id: { $in: chattedUsersArray },
+        })
+          .populate("sender")
+          .populate("receiver");
 
-    let chats = []
+        let chats = [];
 
-    // Retrieve the last chat for each user
-    for (let user of populatedUsers) {
-      // Find the last chat where the user is either sender or receiver
-      let lastChat = await Chat.find({
-        $or: [
-          { sender: user._id },
-          { receiver: user._id }
-        ]
-      }).sort({ createdAt: -1 });
+        // Retrieve the last chat for each user
+        for (let user of populatedUsers) {
+          // Find the last chat where the user is either sender or receiver
+          let lastChat = await Chat.find({
+            $or: [{ sender: user._id }, { receiver: user._id }],
+          }).sort({ createdAt: -1 });
 
-      // Attach the last chat to the user object
-      chats.push(
-        {user_id: user._id,
-          name: user.name,
-          image: user.image,
-          chat: lastChat[lastChat.length - 1].message,
-          date: lastChat[lastChat.length - 1].date})
-      user.lastChat = lastChat;
-      console.log(lastChat, "user", chats)
-    }
+          // Attach the last chat to the user object
+          chats.push({
+            user_id: user._id,
+            name: user.name,
+            image: user.image,
+            chat: lastChat[lastChat.length - 1].message,
+            date: lastChat[lastChat.length - 1].date,
+          });
+          user.lastChat = lastChat;
+        }
 
-    // Emit the populated chatted users to the client
-    socket.emit("chattedUsers", chats);
-  } catch (error) {
-    console.error("Error retrieving chatted users:", error);
-  }
-});
-
-
-
-
-socket.on("getChats", async ({ senderId, receiverId }) => {
-  console.log("ids are", senderId, receiverId)
-  try {
-    // Retrieve all chats where either the sender is senderId and receiver is receiverId,
-    // or the sender is receiverId and receiver is senderId
-    const chats = await Chat.find({
-      $or: [
-        { sender: senderId, receiver: receiverId },
-        { sender: receiverId, receiver: senderId }
-      ]
+        // Emit the populated chatted users to the client
+        socket.emit("chattedUsers", chats.reverse());
+      } catch (error) {
+        console.error("Error retrieving chatted users:", error);
+      }
     });
-    // Emit the chats to the client
-    socket.emit("allChats", chats);
-  } catch (error) {
-    console.error("Error retrieving chats:", error);
-  }
-});
 
+    // Function to get all users with whom a person has chatted, along with their last chat
+    socket.on("getRecentChats", async (personId) => {
+      try {
+        // Find distinct sender IDs where the person ID matches the receiver
+        const senders = await Chat.distinct("sender", { receiver: personId });
+        // Find distinct receiver IDs where the person ID matches the sender
+        const receivers = await Chat.distinct("receiver", { sender: personId });
+
+        // Create a Set to store unique user IDs
+        const chattedUsersSet = new Set([...senders, ...receivers]);
+
+        // Convert the Set back to an array
+        const chattedUsersArray = Array.from(chattedUsersSet);
+
+        // Populate the sender and receiver fields
+        const populatedUsers = await User.find({
+          _id: { $in: chattedUsersArray },
+        })
+          .populate("sender")
+          .populate("receiver");
+
+        let chats = [];
+
+        // Retrieve the last chat for each user
+        for (let user of populatedUsers) {
+          // Find the last chat where the user is either sender or receiver
+          let lastChat = await Chat.find({
+            $or: [{ sender: user._id }, { receiver: user._id }],
+          }).sort({ createdAt: -1 });
+
+          const lastMessageDate = new Date(lastChat[lastChat.length - 1].date);
+          const oneWeekAgo = new Date();
+          oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+          // Attach the last chat to the user object
+          if (lastMessageDate > oneWeekAgo) {
+            chats.push({
+              user_id: user._id,
+              name: user.name,
+              image: user.image,
+              chat: lastChat[lastChat.length - 1].message,
+              date: lastChat[lastChat.length - 1].date,
+            });
+          }
+          user.lastChat = lastChat;
+          console.log(lastChat, "user", chats);
+        }
+
+        // Emit the populated chatted users to the client
+        socket.emit("chattedRecentUsers", chats.reverse());
+      } catch (error) {
+        console.error("Error retrieving chatted users:", error);
+      }
+    });
+
+    socket.on("getChats", async ({ senderId, receiverId }) => {
+      console.log("ids are", senderId, receiverId);
+      try {
+        // Retrieve all chats where either the sender is senderId and receiver is receiverId,
+        // or the sender is receiverId and receiver is senderId
+        const chats = await Chat.find({
+          $or: [
+            { sender: senderId, receiver: receiverId },
+            { sender: receiverId, receiver: senderId },
+          ],
+        });
+        // Emit the chats to the client
+        socket.emit("allChats", chats);
+      } catch (error) {
+        console.error("Error retrieving chats:", error);
+      }
+    });
 
     // Function to handle disconnection
     socket.on("disconnect", () => {
