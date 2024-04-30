@@ -115,7 +115,6 @@ function initSocket(io) {
             });
           }
           user.lastChat = lastChat;
-          console.log(lastChat, "user", chats);
         }
 
         // Emit the populated chatted users to the client
@@ -126,7 +125,6 @@ function initSocket(io) {
     });
 
     socket.on("getChats", async ({ senderId, receiverId }) => {
-      console.log("ids are", senderId, receiverId);
       try {
         // Retrieve all chats where either the sender is senderId and receiver is receiverId,
         // or the sender is receiverId and receiver is senderId
