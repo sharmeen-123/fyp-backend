@@ -49,7 +49,7 @@ socket.on("getChattedUsers", async (personId) => {
     // Retrieve the last chat for each user
     for (let user of populatedUsers) {
       // Find the last chat where the user is either sender or receiver
-      let lastChat = await Chat.findOne({
+      let lastChat = await Chat.find({
         $or: [
           { sender: user._id },
           { receiver: user._id }
@@ -61,8 +61,8 @@ socket.on("getChattedUsers", async (personId) => {
         {user_id: user._id,
           name: user.name,
           image: user.image,
-          chat: lastChat.message,
-          date: lastChat.date})
+          chat: lastChat[lastChat.length - 1].message,
+          date: lastChat[lastChat.length - 1].date})
       user.lastChat = lastChat;
       console.log(lastChat, "user", chats)
     }
