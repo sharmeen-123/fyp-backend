@@ -77,19 +77,24 @@ socket.on("getChattedUsers", async (personId) => {
 
 
 
-    // Function to get all chats for a specific person (sender or receiver)
-    socket.on("getChats", async (personId) => {
-      try {
-        // Retrieve all chats where the person ID matches either the sender or receiver ID
-        const chats = await Chat.find({
-          $or: [{ sender: personId }, { receiver: personId }],
-        }).populate("sender");
-        // Emit the chats to the client
-        socket.emit("allChats", chats);
-      } catch (error) {
-        console.error("Error retrieving chats:", error);
-      }
+socket.on("getChats", async ({ senderId, receiverId }) => {
+  console.log("ids are", senderId, receiverId)
+  try {
+    // Retrieve all chats where either the sender is senderId and receiver is receiverId,
+    // or the sender is receiverId and receiver is senderId
+    const chats = await Chat.find({
+      $or: [
+        { sender: senderId, receiver: receiverId },
+        { sender: receiverId, receiver: senderId }
+      ]
     });
+    // Emit the chats to the client
+    socket.emit("allChats", chats);
+  } catch (error) {
+    console.error("Error retrieving chats:", error);
+  }
+});
+
 
     // Function to handle disconnection
     socket.on("disconnect", () => {
