@@ -1,6 +1,7 @@
 const Cart = require("../models/cart");
 const Product = require("../models/product");
-const User = require("../models//user");
+const User = require("../models/user");
+const Wallet = require("../models/wallet");
 
 const CartController = {
   // addCart api
@@ -194,7 +195,7 @@ const CartController = {
     });
 
     const totalAmount = cartExists.totalAmount - productExists.price;
-    console.log("amount is", totalAmount)
+    console.log("amount is", totalAmount);
 
     if (cartExists) {
       let products = cartExists.products;
@@ -232,7 +233,7 @@ const CartController = {
           });
         }
       } catch (err) {
-        console.log(err)
+        console.log(err);
         return res.status(500).send({
           success: false,
           error: "Some Error Occurred",
@@ -253,7 +254,7 @@ const CartController = {
     let { user } = req.params;
     try {
       // Find if the Cart already exists
-      const CartExists = await Cart.find({ user })
+      const CartExists = await Cart.findOne({ user })
         .populate("company")
         .populate({
           path: "products",
@@ -261,12 +262,21 @@ const CartController = {
             path: "product",
           },
         });
+      let Coupons;
+      if (CartExists) {
+        Coupons = await Wallet.find({ user, company: CartExists.company._id})
+        // .populate('coupon');
+     
+      }
 
-      if (CartExists.length > 0) {
+      if (CartExists) {
         return res.status(200).send({
           success: true,
-          message: "Cart Found",
-          data: CartExists,
+          data: {
+            message: "Cart Found",
+            cart: CartExists,
+            coupons: Coupons,
+          },
         });
       } else {
         return res.status(400).send({

@@ -4,11 +4,18 @@ const Schema = mongoose.Schema;
 const walletSchema = new Schema({
   coupon: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "coupon"
+    ref: "coupon",
+    required: true,
   },
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "user"
+    ref: "user",
+    required: true,
+  },
+  company: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "user",
+    required: true,
   },
   collectedAt: {
     type: Date,

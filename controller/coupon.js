@@ -254,10 +254,16 @@ const CouponController = {
   async collectCoupon(req, res, next) {
     const { user, id, lng, lat } = req.body;
 
+    const couponExists = await Coupon.findOne({
+      _id: id,
+    });
+
+
     // wallet object
     const date = new Date();
     const WalletData = {
       coupon: id,
+      company:couponExists.company,
       collectedAt: date,
       user: user,
     };
