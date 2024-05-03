@@ -7,32 +7,49 @@ const orderSchema = new Schema({
     ref: "user",
     required: true,
   },
+  company: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "user",
+    required: true,
+  },
   products: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "product",
-      required: true,
+      product: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "product",
+        required: true,
+      },
+      quantity: {
+        type: Number,
+        required: true,
+      },
+      color: {
+        type: String,
+      },
+      size: {
+        type: String,
+      },
     },
   ],
-  date:{
-    type: Date,
-    default: Date.now()
+  address : {
+    type: String,
   },
-  price: {
-    type: Number,
-    required: true,
+  city : {
+    type: String,
   },
-  cashPayment: {
-    type: Boolean,
-    required: true,
+  postalCode : {
+    type: String,
   },
   coupon: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "coupon",
   },
-  cardId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "paymentMethod",
+  discountedPrice: {
+    type: Number,
   },
+  totalAmount: {
+    type: Number,
+    required: true,
+  }
 });
-module.exports = mongoose.order("order", orderSchema, "orders");
+module.exports = mongoose.model("order", orderSchema, "orders");

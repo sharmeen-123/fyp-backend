@@ -264,9 +264,12 @@ const CartController = {
         });
       let Coupons;
       if (CartExists) {
-        Coupons = await Wallet.find({ user, company: CartExists.company._id})
-        // .populate('coupon');
-     
+        const Couponss = await Wallet.find({ user, company: CartExists.company._id})
+        .populate({
+          path: 'coupon',
+          select: 'name' // Selecting only the 'name' field
+      });
+      Coupons = Couponss.map(wallet => wallet.coupon);
       }
 
       if (CartExists) {
