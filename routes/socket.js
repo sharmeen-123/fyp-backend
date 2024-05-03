@@ -5,7 +5,6 @@ function initSocket(io) {
   io.on("connection", (socket) => {
     // Function to send a chat message
     socket.on("sendChat", async (data) => {
-      console.log("data is", data);
       try {
         // Create a new chat document in MongoDB
         const newChat = new Chat({
@@ -102,7 +101,7 @@ function initSocket(io) {
 
           const lastMessageDate = new Date(lastChat[lastChat.length - 1].date);
           const oneWeekAgo = new Date();
-          oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+          oneWeekAgo.setDate(oneWeekAgo.getDate() - 6);
 
           // Attach the last chat to the user object
           if (lastMessageDate > oneWeekAgo) {
@@ -142,9 +141,7 @@ function initSocket(io) {
     });
 
     // Function to handle disconnection
-    socket.on("disconnect", () => {
-      console.log("socket disconnected... id: " + socket.id);
-    });
+    socket.on("disconnect", () => {});
   });
 }
 

@@ -2,7 +2,6 @@ const Coupon = require("../models/coupon");
 const Wallet = require("../models/wallet");
 
 const CouponController = {
-  // addCoupon api
   async addCoupon(req, res) {
     let CouponData = req.body;
     const date = new Date();
@@ -10,26 +9,41 @@ const CouponController = {
     CouponData.unCollected = CouponData.distributedCoupons;
 
     try {
-      let coupon = new Coupon(CouponData);
-
-      // Save the Coupon to the database
-      coupon.save((error, addNewCoupon) => {
-        if (error) {
-          return res.status(500).send({
-            success: false,
-            error: error.message,
-          });
-        }
-        res.status(200).send({
-          success: true,
-          message: "new coupon added successfully",
-          data:{
-            name: addNewCoupon.name,
-            _id: addNewCoupon._id,
-          }
-        });
+      // Check if a coupon with the same name already exists
+      const existingCoupon = await Coupon.findOne({
+        name: CouponData.name,
+        company: CouponData.company,
+        expiry: { $gt: date },
       });
+
+      if (existingCoupon) {
+        return res.status(400).send({
+          success: false,
+          error: "Coupon with this name already exists.",
+        });
+      } else {
+        let coupon = new Coupon(CouponData);
+
+        // Save the Coupon to the database
+        coupon.save((error, addNewCoupon) => {
+          if (error) {
+            return res.status(500).send({
+              success: false,
+              error: error.message,
+            });
+          }
+          res.status(200).send({
+            success: true,
+            message: "New coupon added successfully",
+            data: {
+              name: addNewCoupon.name,
+              _id: addNewCoupon._id,
+            },
+          });
+        });
+      }
     } catch (err) {
+      console.log("err is", err);
       return res.status(500).send({
         success: false,
         error: "Some Error Occurred",
@@ -49,7 +63,7 @@ const CouponController = {
       // Find if the Coupon already exists
       const data = await Coupon.find({
         company,
-      }).sort({ issueDate : -1 });
+      }).sort({ issueDate: -1 });
 
       if (data) {
         const currentDate = new Date();
@@ -58,29 +72,27 @@ const CouponController = {
           collectedCoupons += val.collected;
           availedCoupons += val.availed;
 
-    // Parsing expiry date
-    const expiryDate = new Date(val.expiry);
+          // Parsing expiry date
+          const expiryDate = new Date(val.expiry);
 
-    // Check if the expiry date is valid and greater than or equal to the current date
-    const expiryy = new Date(val.expiry).toLocaleDateString()
-    const current = currentDate.toLocaleDateString();
+          // Check if the expiry date is valid and greater than or equal to the current date
+          const expiryy = new Date(val.expiry).toLocaleDateString();
+          const current = currentDate.toLocaleDateString();
 
-
-    if (!isNaN(expiryDate.getTime()) && expiryy < current) {
-        expired += val.unCollected; 
-    }
+          if (!isNaN(expiryDate.getTime()) && expiryy < current) {
+            expired += val.unCollected;
+          }
         });
         return res.status(200).send({
           success: true,
           message: "Coupon Found",
-          data:{
-            total : totalCoupons,
+          data: {
+            total: totalCoupons,
             availed: availedCoupons,
             collected: collectedCoupons,
             expired: expired,
             coupons: data,
-          }
-          
+          },
         });
       } else {
         return res.status(400).send({
@@ -96,15 +108,17 @@ const CouponController = {
     }
   },
 
-   // get Coupon and payment by company id api
-   async getCouponWithCard(req, res) {
+  // get Coupon and payment by company id api
+  async getCouponWithCard(req, res) {
     let { company } = req.params;
 
     try {
       // Find if the Coupon already exists
       const data = await Coupon.find({
         company,
-      }).populate("cardId").sort({ issueDate : -1 });
+      })
+        .populate("cardId")
+        .sort({ issueDate: -1 });
 
       if (data) {
         return res.status(200).send({
@@ -126,22 +140,22 @@ const CouponController = {
     }
   },
 
-   // get Coupon that can be collected
-   async getCoupontoCollect(req, res) {
+  // get Coupon that can be collected
+  async getCoupontoCollect(req, res) {
     let { user } = req.params;
 
-    console.log("user is", user)
+    console.log("user is", user);
     try {
       // Find if the Coupon already exists
       const data = await Coupon.find({
         expiry: { $gt: new Date() }, // Expiry date greater than today
         unCollected: { $gt: 0 }, // Uncollected count greater than 0
         locations: {
-            $not: {
-                $elemMatch: { user: user } // User not in the array of locations
-            }
-        }
-    }).sort({ issueDate: -1 });
+          $not: {
+            $elemMatch: { user: user }, // User not in the array of locations
+          },
+        },
+      }).sort({ issueDate: -1 });
 
       if (data.length > 0) {
         return res.status(200).send({
@@ -195,42 +209,39 @@ const CouponController = {
 
   // get Coupon by id api
   async getComapiesOfferingCoupons(req, res) {
-
     try {
       // Find if the Coupon already exists
       const data = await Coupon.aggregate([
         {
-            $group: {
-                _id: '$company',
-                company: { $first: '$company' }
-            }
+          $group: {
+            _id: "$company",
+            company: { $first: "$company" },
+          },
         },
         {
-            $lookup: {
-                from: 'users', // Assuming 'companies' is the name of your companies collection
-                localField: 'company',
-                foreignField: '_id',
-                as: 'company_details'
-            }
+          $lookup: {
+            from: "users", // Assuming 'companies' is the name of your companies collection
+            localField: "company",
+            foreignField: "_id",
+            as: "company_details",
+          },
         },
         {
-            $unwind: '$company_details'
+          $unwind: "$company_details",
         },
         {
-            $replaceRoot: { newRoot: '$company_details' }
-        }
-    ]);
-    
-    // Now data will contain an array of objects, each representing a unique company.
-    
+          $replaceRoot: { newRoot: "$company_details" },
+        },
+      ]);
 
-      if (data) 
+      // Now data will contain an array of objects, each representing a unique company.
+
+      if (data)
         return res.status(200).send({
           success: true,
           message: "Coupon Found",
           data: data,
-        })
-
+        });
     } catch (err) {
       return res.status(500).send({
         success: false,
@@ -268,17 +279,16 @@ const CouponController = {
         function findCoupon(location) {
           let ind =
             location.lng == lng && location.lat == lat && !location.collected;
-          
+
           return ind;
         }
-        console.log("index is", index)
-
+        console.log("index is", index);
 
         if (index != -1) {
           locations[index].collected = true;
           locations[index].user = user;
 
-          console.log("in if", locations[index])
+          console.log("in if", locations[index]);
           const updatedCoupon = await Coupon.findOneAndUpdate(
             { _id: id },
             { locations, collected, unCollected, distributedCoupons },
@@ -297,10 +307,10 @@ const CouponController = {
               res.status(200).send({
                 success: true,
                 message: "coupon collected",
-                data:{
+                data: {
                   coupon: updatedCoupon,
                   wallet: addNewWallet,
-                }
+                },
               });
             });
           }
