@@ -62,8 +62,10 @@ function initSocket(io) {
           user.lastChat = lastChat;
         }
 
+        chats.sort((a, b) => b.date - a.date);
+
         // Emit the populated chatted users to the client
-        socket.emit("chattedUsers", chats.reverse());
+        socket.emit("chattedUsers", chats);
       } catch (error) {
         console.error("Error retrieving chatted users:", error);
       }
@@ -88,7 +90,7 @@ function initSocket(io) {
           _id: { $in: chattedUsersArray },
         })
           .populate("sender")
-          .populate("receiver");
+          .populate("receiver")
 
         let chats = [];
 
@@ -115,9 +117,10 @@ function initSocket(io) {
           }
           user.lastChat = lastChat;
         }
+        chats.sort((a, b) => b.date - a.date);
 
         // Emit the populated chatted users to the client
-        socket.emit("chattedRecentUsers", chats.reverse());
+        socket.emit("chattedRecentUsers", chats);
       } catch (error) {
         console.error("Error retrieving chatted users:", error);
       }

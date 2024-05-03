@@ -2,7 +2,9 @@ const express = require("express");
 const headRouter = require("./user");
 const categoryRouter = require("./category");
 const productRouter = require("./product");
-const cartRouter = require("./cart")
+const cartRouter = require("./cart");
+
+const orderRouter = require("./order")
 const reviewRouter = require("./review")
 const modelRouter = require("./model")
 const couponRouter = require("./coupon")
@@ -28,6 +30,7 @@ router.use("/auth", headRouter);
 router.use("/category", categoryRouter);
 router.use("/product", productRouter);
 router.use('/cart', cartRouter);
+router.use('/order', orderRouter);
 router.use('/review', reviewRouter);
 router.use('/model',authGuard, modelRouter);
 router.use('/coupon', couponRouter);

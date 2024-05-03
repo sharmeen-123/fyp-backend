@@ -134,7 +134,6 @@ const CartController = {
                 return res.status(200).send({
                   success: true,
                   message: "Cart updated successfully",
-                  data: updatedCart,
                 });
               } else {
                 return res.status(404).send({
@@ -264,12 +263,15 @@ const CartController = {
         });
       let Coupons;
       if (CartExists) {
-        const Couponss = await Wallet.find({ user, company: CartExists.company._id})
+        const Couponss = await Wallet.find({ user, company: CartExists.company._id, availed:false})
         .populate({
           path: 'coupon',
-          select: 'name' // Selecting only the 'name' field
+          select: 'name expiry'// Selecting only the 'name' field
+          
       });
-      Coupons = Couponss.map(wallet => wallet.coupon);
+      const currentDate = new Date();
+      Coupons = Couponss.map(wallet => wallet.coupon)
+      .filter(coupon => new Date(coupon.expiry) > currentDate);;
       }
 
       if (CartExists) {
