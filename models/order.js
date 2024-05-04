@@ -12,6 +12,14 @@ const orderSchema = new Schema({
     ref: "user",
     required: true,
   },
+  orderID: {
+    type: String,
+    required: true,
+  },
+  cardNo: {
+    type: String,
+    required: true,
+  },
   products: [
     {
       product: {
@@ -46,6 +54,10 @@ const orderSchema = new Schema({
   },
   discountedPrice: {
     type: Number,
+  },
+  WithdrawnAmount: {
+    type: Number,
+    default: 0,
   },
   totalAmount: {
     type: Number,

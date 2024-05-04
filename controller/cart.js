@@ -254,11 +254,12 @@ const CartController = {
     try {
       // Find if the Cart already exists
       const CartExists = await Cart.findOne({ user })
-        .populate("company")
+        .populate({path: "company", select: 'name image _id'})
         .populate({
           path: "products",
           populate: {
             path: "product",
+            select: 'name images price quantity discount'// Selecting only the 'name' field
           },
         });
       let Coupons;

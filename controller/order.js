@@ -7,7 +7,7 @@ const Product = require("../models/product");
 const OrderController = {
   // addOrder api
   async addOrder(req, res) {
-    let { user, coupon } = req.body;
+    let { user, coupon, orderID, cardNo } = req.body;
     try {
       let cartExists = await Cart.findOne({
         user,
@@ -78,6 +78,8 @@ const OrderController = {
               postalCode: cartExists.postalCode,
               coupon,
               discountedPrice,
+              orderID,
+              cardNo
             };
 
             let order = new Order(orderData);
@@ -203,7 +205,7 @@ const OrderController = {
 
       const orders = orderExists.map((val, ind)=> {
         
-           let order = { id: val._id,
+           let order = { orderId: val.orderID,
             products: val.products,
             company: val.company,
             totalAmount: val.totalAmount,
@@ -264,6 +266,72 @@ const OrderController = {
         return res.status(400).send({
           success: false,
           error: "Order with this id do not exists",
+        });
+      }
+    } catch (error) {
+      res.status(500).send({
+        success: false,
+        error: "Internal server error",
+      });
+    }
+  },
+
+  // get wallet api for company
+  async getCompanyWallet(req, res) {
+    let { company } = req.params;
+    try {
+      // Find if the Order already exists
+      const orderExists = await Order.find({company}).sort({ date: -1 })
+      .populate({
+        path: "user",
+        select: 'name image email'
+      }) 
+      .populate({
+        path: "coupon",
+        select: 'discount'
+      });
+      let totalSale = 0;
+      let discount = 0;
+      let discountedAmount = 0
+
+      let order = orderExists.map((val, ind) => {
+        totalSale += val.totalAmount;
+        discountedAmount += val.discountedPrice
+        return {
+            name: val.user.name,
+            image: val.user.image,
+            email:val.user.email,
+            discount: val.coupon.discount,
+            date: val.date,
+            discountPrice: val.discountedPrice,
+            amount: val.totalAmount
+        }
+      })
+      discount = totalSale - discountedAmount
+      if(totalSale > 1000){
+        totalSale = totalSale/1000 + 'K'
+      }
+      if(discountedAmount > 1000){
+        discountedAmount = discountedAmount/1000 + 'K'
+      }
+      if(discount> 1000){
+        discount = discount/1000 + 'K'
+      }
+
+      if(orderExists.length > 0){
+        return res.status(200).send({
+          success: true,
+          data: {
+            message: "Wallet Found",
+            totalSale, discountedAmount,
+            discount,
+            wallets:order
+          }
+        });
+      } else {
+        return res.status(400).send({
+          success: false,
+          error: "Wallet with this id do not exists",
         });
       }
     } catch (error) {
