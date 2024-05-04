@@ -3,6 +3,8 @@ const Cart = require("../models/cart");
 const Coupon = require("../models/coupon");
 const Wallet = require("../models/wallet");
 const Product = require("../models/product");
+const User = require("../models/user");
+const CompanyWallet = require("../models/CompanyWallet");
 
 const OrderController = {
   // addOrder api
@@ -30,6 +32,16 @@ const OrderController = {
             cartExists.totalAmount -
             (cartExists.totalAmount * CouponExists.discount) / 100;
         }
+
+        let walletData = {
+          from : user,
+          to:cartExists.company,
+          amount: discountedPrice,
+          cardNo, orderID
+        }
+
+        let companyWallet = new CompanyWallet(walletData);
+        companyWallet.save()
 
         // update products
         let products = cartExists.products;

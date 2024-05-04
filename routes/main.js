@@ -8,6 +8,8 @@ const orderRouter = require("./order")
 const reviewRouter = require("./review")
 const modelRouter = require("./model")
 const couponRouter = require("./coupon")
+
+const companyWalletRouter = require("./companyWallet")
 const paymentMethodRouter = require("./paymentMethod")
 const paymentPlanRouter = require("./paymentPlan")
 const stripe = require("./stripe")
@@ -27,18 +29,19 @@ router.get("/", (req, res) => {
 });
 
 router.use("/auth", headRouter);
-router.use("/category", categoryRouter);
-router.use("/product", productRouter);
-router.use('/cart', cartRouter);
-router.use('/order', orderRouter);
-router.use('/review', reviewRouter);
-router.use('/model',authGuard, modelRouter);
 router.use('/coupon', couponRouter);
-router.use('/payments', paymentMethodRouter);
-router.use('/wallet', walletRouter);
-router.use('/plans', paymentPlanRouter);
-router.use('/stripe', stripe);
+router.use('/cart', cartRouter);
+router.use("/category", categoryRouter);
+router.use('/companyWallet', companyWalletRouter);
 router.use('/dashboard', dashboardRouter);
+router.use('/model',authGuard, modelRouter);
+router.use('/order', orderRouter);
+router.use('/payments', paymentMethodRouter);
+router.use('/plans', paymentPlanRouter);
+router.use("/product", productRouter);
+router.use('/review', reviewRouter);
+router.use('/stripe', stripe);
+router.use('/wallet', walletRouter);
 
 router.use('/images', pathh);
 
