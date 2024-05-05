@@ -62,13 +62,30 @@ const WalletController = {
       // Find if the Wallet already exists
       const data = await Wallet.find({
         user,
-      }).populate('coupon').populate("user");
+      }).populate({
+        path: "coupon",
+        select: 'name expiry discount'// Selecting only the 'name' field
+      }).populate({
+        path:"company",
+      select: 'name, image'});
+
+      let availed = 0;
+      data.map((val, ind)=> {
+        if(val.availed == true){
+          availed += 1
+        }
+      });
 
       if (data.length > 0) {
         return res.status(200).send({
           success: true,
-          message: "Wallet Found",
-          data: data,
+          data: {
+            message: "Wallet Found",
+            Collected: data.length,
+            Availed: availed,
+            coupons: data,
+          }
+          
         });
       } else {
         return res.status(400).send({
