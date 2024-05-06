@@ -194,7 +194,6 @@ const CartController = {
     });
 
     const totalAmount = cartExists.totalAmount - productExists.price;
-    console.log("amount is", totalAmount);
 
     if (cartExists) {
       let products = cartExists.products;
@@ -252,6 +251,9 @@ const CartController = {
   async getCart(req, res) {
     let { user } = req.params;
     try {
+      const userExists = await User.findOne({
+        _id: user,
+      });
       // Find if the Cart already exists
       const CartExists = await Cart.findOne({ user })
         .populate({path: "company", select: 'name image _id'})
@@ -285,10 +287,64 @@ const CartController = {
           },
         });
       } else {
-        return res.status(400).send({
-          success: false,
-          error: "Cart with this id do not exists",
+        return res.status(200).send({
+          success: true,
+          data: {
+            cart: {
+              address:userExists.location,
+              totalAmount:0
+            },
+            coupons: [],
+          },
         });
+      }
+    } catch (error) {
+      // Handle any unexpected errors
+      console.error("Error in Model function:", error);
+      res.status(500).send({
+        success: false,
+        error: "Internal server error",
+      });
+    }
+  },
+
+  // .......................................get Address api.........................................
+  async getAddress(req, res) {
+    let { user } = req.params;
+    try {
+      const userExists = await User.findOne({
+        _id: user,
+      });
+      // Find if the Cart already exists
+      const CartExists = await Cart.findOne({ user })
+      if (CartExists) {
+        return res.status(200).send({
+          success: true,
+          data: {
+            message: "Address Found",
+            address: CartExists.address,
+            city: CartExists.city,
+            postalCode: CartExists.postalCode
+          },
+        });
+      } else {
+        if(userExists){
+          return res.status(200).send({
+            success: true,
+            data: {
+              message: "Address Found",
+                address:userExists.location,
+            },
+          });
+        }else{
+          return res.status(400).send({
+            success: false,
+            data: {
+              error: "User not found",
+            },
+          });
+        }
+        
       }
     } catch (error) {
       // Handle any unexpected errors

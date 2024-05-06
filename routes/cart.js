@@ -5,6 +5,7 @@ const cartRouter = express.Router();
 
 cartRouter.post("/addToCart", cartController.addtoCart);
 cartRouter.get("/getCart/:user", cartController.getCart);
+cartRouter.get("/getAddress/:user", cartController.getAddress);
 cartRouter.delete("/clearCart", cartController.clearCart);
 cartRouter.put("/removeFromCart", cartController.removeFromCart);
 cartRouter.put("/updateAddress", cartController.updateAddress);

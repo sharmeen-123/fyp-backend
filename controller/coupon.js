@@ -157,22 +157,46 @@ const CouponController = {
         },
       }).sort({ issueDate: -1 });
 
-      if (data.length > 0) {
+      let coupons = []
+      data.map((val, ind) => {
+        val.locations.map((val2, ind2) => {
+          if(val2.collected == false){
+            let coupon = {
+              id: val._id,
+              company: val.company,
+              discount: val.discount,
+              issueDate: val.issueDate,
+              expiry: val.expiry,
+              name: val.name,
+              lat: val2.lat,
+              lng: val2.lng
+            }
+            coupons.push(coupon)
+          }
+        })
+      })
+
+      if (data.length) {
         return res.status(200).send({
           success: true,
-          message: "Coupon Found",
-          data: data,
+          data:{
+            message: "Coupon Found",
+            coupons: coupons,
+          }
+         
         });
       } else {
         return res.status(400).send({
           success: false,
-          error: "no coupons exist",
+          data:{
+            error: "no coupons exist",
+          }
         });
       }
     } catch (err) {
       return res.status(500).send({
         success: false,
-        error: "Some Error Occurred",
+        data: {error: "Some Error Occurred"},
       });
     }
   },
