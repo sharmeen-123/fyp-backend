@@ -88,9 +88,15 @@ const WalletController = {
           
         });
       } else {
-        return res.status(400).send({
-          success: false,
-          error: "Wallet with this name do not exists",
+        return res.status(200).send({
+          success: true,
+          data: {
+            message: "Wallet Found",
+            Collected: 0,
+            Availed: 0,
+            coupons: [],
+          }
+          
         });
       }
     } catch (err) {
