@@ -157,6 +157,7 @@ const CouponController = {
         },
       })
         .populate("company")
+        .populate({ path: "model", select: "name image" })
         .sort({ issueDate: -1 });
 
       let coupons = [];
