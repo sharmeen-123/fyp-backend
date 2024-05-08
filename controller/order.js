@@ -26,7 +26,7 @@ const OrderController = {
           availed: false,
         });
 
-        let discountedPrice = cartExists.totalAmount;
+        let discountedPrice = cartExists.discountedPrice;
         if (WalletExists) {
           discountedPrice =
             cartExists.totalAmount -

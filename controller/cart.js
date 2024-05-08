@@ -44,7 +44,8 @@ const CartController = {
             },
           ],
           address: userExists.location,
-          totalAmount: productExists.price,
+          totalAmount: (productExists.price ),
+          discountedAmount: (productExists.price - (productExists.price*(productExists.discount / 100)))
         };
 
         // save cart to data base
@@ -81,12 +82,7 @@ const CartController = {
           if (
             cartExists.company.toString() != productExists.company.toString()
           ) {
-            console.log(
-              "cart exist",
-              cartExists.company,
-              "prod exist",
-              productExists.company
-            );
+          
             // if product is of different company
             return res.status(400).send({
               success: false,
@@ -118,6 +114,7 @@ const CartController = {
                 size: data.size,
               });
             }
+            const discountedAmount = cartExists.discountedAmount+ (productExists.price - (productExists.price*(productExists.discount / 100)))
 
             try {
               // update database
@@ -126,6 +123,7 @@ const CartController = {
                 {
                   products: updatedProducts,
                   totalAmount: productExists.price + cartExists.totalAmount,
+                  discountedAmount
                 }, // Use $each to push multiple items
                 { new: true }
               );
@@ -194,6 +192,7 @@ const CartController = {
     });
 
     const totalAmount = cartExists.totalAmount - productExists.price;
+    const discountedAmount =  cartExists.discountedAmount - (productExists.price - (productExists.price*(productExists.discount / 100)))
 
     if (cartExists) {
       let products = cartExists.products;
@@ -215,6 +214,8 @@ const CartController = {
             products,
 
             totalAmount,
+
+            discountedAmount,
           }, // Use $each to push multiple items
           { new: true }
         );
