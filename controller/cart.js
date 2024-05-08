@@ -44,8 +44,10 @@ const CartController = {
             },
           ],
           address: userExists.location,
-          totalAmount: (productExists.price ),
-          discountedAmount: (productExists.price - (productExists.price*(productExists.discount / 100)))
+          totalAmount: productExists.price,
+          discountedAmount:
+            productExists.price -
+            productExists.price * (productExists.discount / 100),
         };
 
         // save cart to data base
@@ -82,7 +84,6 @@ const CartController = {
           if (
             cartExists.company.toString() != productExists.company.toString()
           ) {
-          
             // if product is of different company
             return res.status(400).send({
               success: false,
@@ -114,7 +115,10 @@ const CartController = {
                 size: data.size,
               });
             }
-            const discountedAmount = cartExists.discountedAmount+ (productExists.price - (productExists.price*(productExists.discount / 100)))
+            const discountedAmount =
+              cartExists.discountedAmount +
+              (productExists.price -
+                productExists.price * (productExists.discount / 100));
 
             try {
               // update database
@@ -123,7 +127,7 @@ const CartController = {
                 {
                   products: updatedProducts,
                   totalAmount: productExists.price + cartExists.totalAmount,
-                  discountedAmount
+                  discountedAmount,
                 }, // Use $each to push multiple items
                 { new: true }
               );
@@ -192,7 +196,10 @@ const CartController = {
     });
 
     const totalAmount = cartExists.totalAmount - productExists.price;
-    const discountedAmount =  cartExists.discountedAmount - (productExists.price - (productExists.price*(productExists.discount / 100)))
+    const discountedAmount =
+      cartExists.discountedAmount -
+      (productExists.price -
+        productExists.price * (productExists.discount / 100));
 
     if (cartExists) {
       let products = cartExists.products;
@@ -257,25 +264,30 @@ const CartController = {
       });
       // Find if the Cart already exists
       const CartExists = await Cart.findOne({ user })
-        .populate({path: "company", select: 'name image _id'})
+        .populate({ path: "company", select: "name image _id" })
         .populate({
           path: "products",
           populate: {
             path: "product",
-            select: 'name images price quantity discount'// Selecting only the 'name' field
+            select: "name images price quantity discount", // Selecting only the 'name' field
           },
         });
       let Coupons;
       if (CartExists) {
-        const Couponss = await Wallet.find({ user, company: CartExists.company._id, availed:false})
-        .populate({
-          path: 'coupon',
-          select: 'name expiry'// Selecting only the 'name' field
-          
-      });
-      const currentDate = new Date();
-      Coupons = Couponss.map(wallet => wallet.coupon)
-      .filter(coupon => new Date(coupon.expiry) > currentDate);;
+        const Couponss = await Wallet.find({
+          user,
+          company: CartExists.company._id,
+          availed: false,
+        })
+          .populate({
+            path: "coupon",
+            select: "name expiry discount", // Selecting only the 'name' field
+          })
+          .sort({ expiry: 1 });
+        const currentDate = new Date();
+        Coupons = Couponss.map((wallet) => wallet.coupon).filter(
+          (coupon) => new Date(coupon.expiry) > currentDate
+        );
       }
 
       if (CartExists) {
@@ -292,8 +304,8 @@ const CartController = {
           success: true,
           data: {
             cart: {
-              address:userExists.location,
-              totalAmount:0
+              address: userExists.location,
+              totalAmount: 0,
             },
             coupons: [],
           },
@@ -317,7 +329,7 @@ const CartController = {
         _id: user,
       });
       // Find if the Cart already exists
-      const CartExists = await Cart.findOne({ user })
+      const CartExists = await Cart.findOne({ user });
       if (CartExists) {
         return res.status(200).send({
           success: true,
@@ -325,19 +337,19 @@ const CartController = {
             message: "Address Found",
             address: CartExists.address,
             city: CartExists.city,
-            postalCode: CartExists.postalCode
+            postalCode: CartExists.postalCode,
           },
         });
       } else {
-        if(userExists){
+        if (userExists) {
           return res.status(200).send({
             success: true,
             data: {
               message: "Address Found",
-                address:userExists.location,
+              address: userExists.location,
             },
           });
-        }else{
+        } else {
           return res.status(400).send({
             success: false,
             data: {
@@ -345,7 +357,6 @@ const CartController = {
             },
           });
         }
-        
       }
     } catch (error) {
       // Handle any unexpected errors
