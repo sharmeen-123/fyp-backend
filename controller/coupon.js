@@ -155,48 +155,50 @@ const CouponController = {
             $elemMatch: { user: user }, // User not in the array of locations
           },
         },
-      }).sort({ issueDate: -1 });
+      })
+        .populate("company")
+        .sort({ issueDate: -1 });
 
-      let coupons = []
+      let coupons = [];
       data.map((val, ind) => {
         val.locations.map((val2, ind2) => {
-          if(val2.collected == false){
+          if (val2.collected == false) {
             let coupon = {
               id: val._id,
-              company: val.company,
+              company: val.company._id,
+              companyImage: val.company.image,
               discount: val.discount,
               issueDate: val.issueDate,
               expiry: val.expiry,
               name: val.name,
               lat: val2.lat,
-              lng: val2.lng
-            }
-            coupons.push(coupon)
+              lng: val2.lng,
+            };
+            coupons.push(coupon);
           }
-        })
-      })
+        });
+      });
 
       if (data.length) {
         return res.status(200).send({
           success: true,
-          data:{
+          data: {
             message: "Coupon Found",
             coupons: coupons,
-          }
-         
+          },
         });
       } else {
         return res.status(400).send({
           success: false,
-          data:{
+          data: {
             error: "no coupons exist",
-          }
+          },
         });
       }
     } catch (err) {
       return res.status(500).send({
         success: false,
-        data: {error: "Some Error Occurred"},
+        data: { error: "Some Error Occurred" },
       });
     }
   },
@@ -282,12 +284,11 @@ const CouponController = {
       _id: id,
     });
 
-
     // wallet object
     const date = new Date();
     const WalletData = {
       coupon: id,
-      company:couponExists.company,
+      company: couponExists.company,
       collectedAt: date,
       user: user,
     };
