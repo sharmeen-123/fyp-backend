@@ -171,6 +171,7 @@ const CouponController = {
               issueDate: val.issueDate,
               expiry: val.expiry,
               name: val.name,
+              model: val.model,
               lat: val2.lat,
               lng: val2.lng,
             };
