@@ -171,9 +171,15 @@ const CartController = {
         { new: true }
       );
 
+      const updatedUser = await User.findOneAndUpdate(
+        { _id: user },
+        { location:address}, // Use $each to push multiple items
+        { new: true }
+      );
+
       return res.status(200).send({
         success: true,
-        data: updatedCart,
+        data: "location updated",
       });
     } catch (error) {
       return res.status(400).send({
