@@ -123,10 +123,14 @@ const OrderController = {
 
             let order = new Order(orderData);
 
-            const CartDeleted = await Cart.findOneAndDelete({
+            const CartDeleted = await Cart.findOneAndUpdate({
               user,
+            }, {
+              totalAmount: 0,
+              discountedAmount: 0,
+              products: []
             });
-
+      
             // save order
 
             order.save((error, addNewOrder) => {

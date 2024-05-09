@@ -380,8 +380,12 @@ const CartController = {
   async clearCart(req, res) {
     let { user } = req.body;
     try {
-      const CartDeleted = await Cart.findOneAndDelete({
+      const CartDeleted = await Cart.findOneAndUpdate({
         user,
+      }, {
+        totalAmount: 0,
+        discountedAmount: 0,
+        products: []
       });
 
       if (CartDeleted) {
