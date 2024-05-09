@@ -20,18 +20,27 @@ const OrderController = {
         let CouponExists = await Coupon.findOne({
           _id: coupon,
         });
-        let WalletExists = await Wallet.findOne({
-          coupon,
-          user,
-          availed: false,
-        });
-
-        let discountedPrice = cartExists.discountedPrice;
-        if (WalletExists) {
-          discountedPrice =
-            cartExists.totalAmount -
-            (cartExists.totalAmount * CouponExists.discount) / 100;
+        let WalletExists;
+        if(coupon != ''){
+        WalletExists = await Wallet.findOne({
+            coupon,
+            user,
+            availed: false,
+          });
         }
+        
+
+        let discountedPrice = 0;
+
+        
+        console.log("discounted price iss  ... ** ", discountedPrice)
+        discountedPrice = cartExists.discountedAmount;
+        console.log("discounted price iss  ...", discountedPrice)
+
+        if (WalletExists) {
+          discountedPrice =cartExists.totalAmount -(cartExists.totalAmount * CouponExists.discount) / 100;
+        }
+        console.log("discounted price iss", discountedPrice)
 
         let walletData = {
           from : user,
