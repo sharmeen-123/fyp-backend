@@ -173,7 +173,7 @@ const CartController = {
 
       const updatedUser = await User.findOneAndUpdate(
         { _id: user },
-        { location:address}, // Use $each to push multiple items
+        { location:address, city, postalCode }, // Use $each to push multiple items
         { new: true }
       );
 
@@ -311,6 +311,8 @@ const CartController = {
           data: {
             cart: {
               address: userExists.location,
+              city : userExists.city,
+              postalCode: userExists.postalCode,
               totalAmount: 0,
             },
             coupons: [],

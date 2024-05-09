@@ -31,6 +31,12 @@ const userSchema = new Schema({
   otp_expiry_time: {
     type: Date,
   },
+  city : {
+    type: String,
+  },
+  postalCode : {
+    type: String,
+  },
   type: {
     type: String,
     required: true
