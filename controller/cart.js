@@ -221,7 +221,9 @@ const CartController = {
       }
 
       try {
-        const updatedCart = await Cart.findOneAndUpdate(
+        let updatedCart
+        if(products.length > 0){
+        updatedCart = await Cart.findOneAndUpdate(
           { user },
           {
             products,
@@ -231,7 +233,11 @@ const CartController = {
             discountedAmount,
           }, // Use $each to push multiple items
           { new: true }
-        );
+        );}else{
+          updatedCart = await Cart.findOneAndDelete({
+            user,
+          });
+        }
 
         if (updatedCart) {
           return res.status(200).send({
