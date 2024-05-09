@@ -1,0 +1,11 @@
+Model Information:
+* title:	computer mouse
+* source:	https://sketchfab.com/3d-models/computer-mouse-f502604d3d9547088e9a56a3a32661ae
+* author:	mfk (https://sketchfab.com/mfkffzl)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "computer mouse" (https://sketchfab.com/3d-models/computer-mouse-f502604d3d9547088e9a56a3a32661ae) by mfk (https://sketchfab.com/mfkffzl) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

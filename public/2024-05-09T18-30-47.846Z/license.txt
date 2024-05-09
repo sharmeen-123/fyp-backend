@@ -1,0 +1,11 @@
+Model Information:
+* title:	Poor Mans Pants
+* source:	https://sketchfab.com/3d-models/poor-mans-pants-f0b032268e4e472aac0eb0636c580ba3
+* author:	Pabooklas (https://sketchfab.com/Pabooklas)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Poor Mans Pants" (https://sketchfab.com/3d-models/poor-mans-pants-f0b032268e4e472aac0eb0636c580ba3) by Pabooklas (https://sketchfab.com/Pabooklas) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

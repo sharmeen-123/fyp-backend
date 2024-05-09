@@ -1,0 +1,11 @@
+Model Information:
+* title:	"Mińsk" Fridge
+* source:	https://sketchfab.com/3d-models/minsk-fridge-55325e3b09ac48b2ae3803bccf804741
+* author:	Michalina "Miszla" Gąsienica-Laskowy (https://sketchfab.com/Miszla)
+
+Model License:
+* license type:	CC-BY-NC-SA-4.0 (http://creativecommons.org/licenses/by-nc-sa/4.0/)
+* requirements:	Author must be credited. No commercial use. Modified versions must have the same license.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on ""Mińsk" Fridge" (https://sketchfab.com/3d-models/minsk-fridge-55325e3b09ac48b2ae3803bccf804741) by Michalina "Miszla" Gąsienica-Laskowy (https://sketchfab.com/Miszla) licensed under CC-BY-NC-SA-4.0 (http://creativecommons.org/licenses/by-nc-sa/4.0/)

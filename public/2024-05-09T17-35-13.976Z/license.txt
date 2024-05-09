@@ -1,0 +1,11 @@
+Model Information:
+* title:	Keyboard Mouse
+* source:	https://sketchfab.com/3d-models/keyboard-mouse-b6644ed405f8489091be482d34cb7195
+* author:	arsenif5690 (https://sketchfab.com/arsenif5690)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Keyboard Mouse" (https://sketchfab.com/3d-models/keyboard-mouse-b6644ed405f8489091be482d34cb7195) by arsenif5690 (https://sketchfab.com/arsenif5690) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

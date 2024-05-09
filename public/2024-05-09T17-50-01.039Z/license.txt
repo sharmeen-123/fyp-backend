@@ -1,0 +1,11 @@
+Model Information:
+* title:	ps5 controller
+* source:	https://sketchfab.com/3d-models/ps5-controller-f75caead1dc1474195eb32a7f4c71117
+* author:	Fred Drabble (https://sketchfab.com/FredDrabble)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "ps5 controller" (https://sketchfab.com/3d-models/ps5-controller-f75caead1dc1474195eb32a7f4c71117) by Fred Drabble (https://sketchfab.com/FredDrabble) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
