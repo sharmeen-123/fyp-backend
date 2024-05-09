@@ -14,43 +14,43 @@ const OrderController = {
       let cartExists = await Cart.findOne({
         user,
       });
+      let CouponExists;
+      let WalletExists = "";
 
       if (cartExists) {
         // some thing to order
-        let CouponExists = await Coupon.findOne({
-          _id: coupon,
-        });
-        let WalletExists;
-        if(coupon != ''){
-        WalletExists = await Wallet.findOne({
+        if (coupon != "") {
+          CouponExists = await Coupon.findOne({
+            _id: coupon,
+          });
+        }
+        if (coupon != "") {
+          WalletExists = await Wallet.findOne({
             coupon,
             user,
             availed: false,
           });
         }
-        
 
-        let discountedPrice = 0;
+        let discountedPrice = cartExists.discountedAmount;
+        let companyWallet;
 
-        
-        console.log("discounted price iss  ... ** ", discountedPrice)
-        discountedPrice = cartExists.discountedAmount;
-        console.log("discounted price iss  ...", discountedPrice)
+        if (coupon != "") {
+          discountedPrice =
+            cartExists.totalAmount -
+            (cartExists.totalAmount * CouponExists.discount) / 100;
 
-        if (WalletExists) {
-          discountedPrice =cartExists.totalAmount -(cartExists.totalAmount * CouponExists.discount) / 100;
+          let walletData = {
+            from: user,
+            to: cartExists.company,
+            amount: discountedPrice,
+            cardNo,
+            orderID,
+          };
+
+          companyWallet = new CompanyWallet(walletData);
+          companyWallet.save();
         }
-        console.log("discounted price iss", discountedPrice)
-
-        let walletData = {
-          from : user,
-          to:cartExists.company,
-          amount: discountedPrice,
-          cardNo, orderID
-        }
-
-        let companyWallet = new CompanyWallet(walletData);
-        companyWallet.save()
 
         // update products
         let products = cartExists.products;
@@ -67,41 +67,59 @@ const OrderController = {
               { new: true }
             );
 
-            // update coupon
+            if (coupon != "") {
+              // update coupon
 
-            const availed = CouponExists.availed + 1;
-            const unCollected = CouponExists.unCollected - 1;
+              const availed = CouponExists.availed + 1;
+              const unCollected = CouponExists.unCollected - 1;
 
-            const updatedCoupon = await Coupon.findOneAndUpdate(
-              { _id: coupon },
-              {
-                availed,
-                unCollected,
-              },
-              { new: true }
-            );
+              const updatedCoupon = await Coupon.findOneAndUpdate(
+                { _id: coupon },
+                {
+                  availed,
+                  unCollected,
+                },
+                { new: true }
+              );
 
-            const updatedWallet = await Wallet.findOneAndUpdate(
-              { coupon: coupon },
-              {
-                availed: true,
-              },
-              { new: true }
-            );
+              const updatedWallet = await Wallet.findOneAndUpdate(
+                { coupon: coupon },
+                {
+                  availed: true,
+                },
+                { new: true }
+              );
+            }
+            let orderData;
 
-            let orderData = {
-              user: cartExists.user,
-              company: cartExists.company,
-              products: cartExists.products,
-              address: cartExists.address,
-              totalAmount: cartExists.totalAmount,
-              city: cartExists.city,
-              postalCode: cartExists.postalCode,
-              coupon,
-              discountedPrice,
-              orderID,
-              cardNo
-            };
+            if (coupon != "") {
+              orderData = {
+                user: cartExists.user,
+                company: cartExists.company,
+                products: cartExists.products,
+                address: cartExists.address,
+                totalAmount: cartExists.totalAmount,
+                city: cartExists.city,
+                postalCode: cartExists.postalCode,
+                coupon,
+                discountedPrice,
+                orderID,
+                cardNo,
+              };
+            } else {
+              orderData = {
+                user: cartExists.user,
+                company: cartExists.company,
+                products: cartExists.products,
+                address: cartExists.address,
+                totalAmount: cartExists.totalAmount,
+                city: cartExists.city,
+                postalCode: cartExists.postalCode,
+                discountedPrice,
+                orderID,
+                cardNo,
+              };
+            }
 
             let order = new Order(orderData);
 
@@ -145,6 +163,7 @@ const OrderController = {
       }
     } catch (error) {
       // Handle any unexpected errors
+      console.log(error);
       return res.status(500).send({
         success: false,
         error: "Internal server error",
@@ -159,44 +178,45 @@ const OrderController = {
       let cartExists = await Cart.findOne({
         user,
       });
-      if(cartExists){
+      if (cartExists) {
         let CouponExists = await Coupon.findOne({
-            _id: coupon,
-          });
-          let WalletExists = await Wallet.findOne({
-            coupon,
-            user,
-            availed: false,
-          });
-    
-          let discountedPrice = cartExists.totalAmount;
-          if (WalletExists) {
-            discountedPrice =
-              cartExists.totalAmount -
-              (cartExists.totalAmount * CouponExists.discount) / 100;
-            return res.status(200).send({
-              success: true,
-              data: { 
-                totalPrice: cartExists.totalAmount,
-                discountedPrice: discountedPrice },
-            });
-          } else {
-            return res.status(400).send({
-              success: false,
-              data: {
-                error: "Coupon is not present in your wallet or is already availed",
-              },
-            });
-          }
-      }else{
-        return res.status(400).send({
-            success: false,
+          _id: coupon,
+        });
+        let WalletExists = await Wallet.findOne({
+          coupon,
+          user,
+          availed: false,
+        });
+
+        let discountedPrice = cartExists.totalAmount;
+        if (WalletExists) {
+          discountedPrice =
+            cartExists.totalAmount -
+            (cartExists.totalAmount * CouponExists.discount) / 100;
+          return res.status(200).send({
+            success: true,
             data: {
-              error: "No product is added in cart yet",
+              totalPrice: cartExists.totalAmount,
+              discountedPrice: discountedPrice,
             },
           });
+        } else {
+          return res.status(400).send({
+            success: false,
+            data: {
+              error:
+                "Coupon is not present in your wallet or is already availed",
+            },
+          });
+        }
+      } else {
+        return res.status(400).send({
+          success: false,
+          data: {
+            error: "No product is added in cart yet",
+          },
+        });
       }
-     
     } catch (error) {
       // Handle any unexpected errors
       return res.status(500).send({
@@ -211,37 +231,38 @@ const OrderController = {
     let { user } = req.params;
     try {
       // Find if the Order already exists
-      const orderExists = await Order.find({user}).sort({ date: -1 })
-      .populate({
-        path: "products",
-        populate: {
-          path: "product",
-          select: 'name price images'
-        },
-      })
-      .populate({
-        path: "company",
-        select: 'name image'
+      const orderExists = await Order.find({ user })
+        .sort({ date: -1 })
+        .populate({
+          path: "products",
+          populate: {
+            path: "product",
+            select: "name price images",
+          },
+        })
+        .populate({
+          path: "company",
+          select: "name image",
+        });
+
+      const orders = orderExists.map((val, ind) => {
+        let order = {
+          orderId: val.orderID,
+          products: val.products,
+          company: val.company,
+          totalAmount: val.totalAmount,
+          discountedAmount: val.discountedPrice,
+        };
+        return order;
       });
 
-      const orders = orderExists.map((val, ind)=> {
-        
-           let order = { orderId: val.orderID,
-            products: val.products,
-            company: val.company,
-            totalAmount: val.totalAmount,
-            discountedAmount: val.discountedPrice}
-            return order
-       
-      })
-
-      if(orderExists.length > 0){
+      if (orderExists.length > 0) {
         return res.status(200).send({
           success: true,
           data: {
             message: "Order Found",
-            orders:orders
-          }
+            orders: orders,
+          },
         });
       } else {
         return res.status(400).send({
@@ -257,31 +278,32 @@ const OrderController = {
     }
   },
 
-   // get Order api for company
-   async getCompanyOrder(req, res) {
+  // get Order api for company
+  async getCompanyOrder(req, res) {
     let { company } = req.params;
     try {
       // Find if the Order already exists
-      const orderExists = await Order.find({company}).sort({ date: -1 })
-      .populate({
-        path: "products",
-        populate: {
-          path: "product",
-          select: 'name images price quantity description'
-        },
-      })
-      .populate({
-        path: "user",
-        select: 'name image contact'
-      });
+      const orderExists = await Order.find({ company })
+        .sort({ date: -1 })
+        .populate({
+          path: "products",
+          populate: {
+            path: "product",
+            select: "name images price quantity description",
+          },
+        })
+        .populate({
+          path: "user",
+          select: "name image contact",
+        });
 
-      if(orderExists.length > 0){
+      if (orderExists.length > 0) {
         return res.status(200).send({
           success: true,
           data: {
             message: "Order Found",
-            orders:orderExists
-          }
+            orders: orderExists,
+          },
         });
       } else {
         return res.status(400).send({
@@ -302,52 +324,54 @@ const OrderController = {
     let { company } = req.params;
     try {
       // Find if the Order already exists
-      const orderExists = await Order.find({company}).sort({ date: -1 })
-      .populate({
-        path: "user",
-        select: 'name image email'
-      }) 
-      .populate({
-        path: "coupon",
-        select: 'discount'
-      });
+      const orderExists = await Order.find({ company })
+        .sort({ date: -1 })
+        .populate({
+          path: "user",
+          select: "name image email",
+        })
+        .populate({
+          path: "coupon",
+          select: "discount",
+        });
       let totalSale = 0;
       let discount = 0;
-      let discountedAmount = 0
+      let discountedAmount = 0;
 
       let order = orderExists.map((val, ind) => {
         totalSale += val.totalAmount;
-        discountedAmount += val.discountedPrice
+        discountedAmount += val.discountedPrice;
         return {
-            name: val.user.name,
-            image: val.user.image,
-            email:val.user.email,
-            discount: val.coupon.discount,
-            date: val.date,
-            discountPrice: val.discountedPrice,
-            amount: val.totalAmount
-        }
-      })
-      discount = totalSale - discountedAmount
-      if(totalSale > 1000){
-        totalSale = totalSale/1000 + 'K'
+          name: val.user.name,
+          image: val.user.image,
+          email: val.user.email,
+          discount: val.coupon.discount,
+          date: val.date,
+          discountPrice: val.discountedPrice,
+          amount: val.totalAmount,
+        };
+      });
+      discount = totalSale - discountedAmount;
+      if (totalSale > 1000) {
+        totalSale = totalSale / 1000 + "K";
       }
-      if(discountedAmount > 1000){
-        discountedAmount = discountedAmount/1000 + 'K'
+      if (discountedAmount > 1000) {
+        discountedAmount = discountedAmount / 1000 + "K";
       }
-      if(discount> 1000){
-        discount = discount/1000 + 'K'
+      if (discount > 1000) {
+        discount = discount / 1000 + "K";
       }
 
-      if(orderExists.length > 0){
+      if (orderExists.length > 0) {
         return res.status(200).send({
           success: true,
           data: {
             message: "Wallet Found",
-            totalSale, discountedAmount,
+            totalSale,
+            discountedAmount,
             discount,
-            wallets:order
-          }
+            wallets: order,
+          },
         });
       } else {
         return res.status(400).send({
