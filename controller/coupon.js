@@ -182,7 +182,7 @@ const CouponController = {
         });
       });
 
-      if (data.length) {
+      if (data) {
         return res.status(200).send({
           success: true,
           data: {
