@@ -11,165 +11,129 @@ const OrderController = {
   async addOrder(req, res) {
     let { user, coupon, orderID, cardNo } = req.body;
     try {
-      let cartExists = await Cart.findOne({
-        user,
-      });
-      let CouponExists;
-      let WalletExists = "";
+        let cartExists = await Cart.findOne({ user });
+        let CouponExists;
+        let WalletExists = "";
 
-      if (cartExists) {
-        // some thing to order
-        if (coupon != "") {
-          CouponExists = await Coupon.findOne({
-            _id: coupon,
-          });
+        if (!cartExists) {
+            return res.status(400).send({
+                success: false,
+                data: {
+                    error: "First add something in cart to order it",
+                },
+            });
         }
-        if (coupon != "") {
-          WalletExists = await Wallet.findOne({
-            coupon,
-            user,
-            availed: false,
-          });
+
+        if (coupon) {
+            CouponExists = await Coupon.findOne({ _id: coupon });
+            WalletExists = await Wallet.findOne({ coupon, user, availed: false });
         }
 
         let discountedPrice = cartExists.discountedAmount;
         let companyWallet;
 
-        if (coupon != "") {
-          discountedPrice =
-            cartExists.totalAmount -
-            (cartExists.totalAmount * CouponExists.discount) / 100;
-
-          let walletData = {
-            from: user,
-            to: cartExists.company,
-            amount: discountedPrice,
-            cardNo,
-            orderID,
-          };
-
-          companyWallet = new CompanyWallet(walletData);
-          companyWallet.save();
+        if (coupon) {
+            discountedPrice = cartExists.totalAmount - (cartExists.totalAmount * CouponExists.discount) / 100;
+            let walletData = {
+                from: user,
+                to: cartExists.company,
+                amount: discountedPrice,
+                cardNo,
+                orderID,
+            };
+            companyWallet = new CompanyWallet(walletData);
+            await companyWallet.save();
         }
 
-        // update products
         let products = cartExists.products;
-        products.map(async (val, ind) => {
-          let ProductExist = await Product.findOne({ _id: val.product });
 
-          if (ProductExist.quantity >= val.quantity) {
+        await Promise.all(products.map(async (val, ind) => {
+            let ProductExist = await Product.findOne({ _id: val.product });
+
+            if (ProductExist.quantity < val.quantity) {
+                return res.status(400).send({
+                    success: false,
+                    data: {
+                        error: `${ProductExist.name} are only ${ProductExist.quantity} in stock`,
+                    },
+                });
+            }
+
             let qty = ProductExist.quantity - val.quantity;
             let product = await Product.findOneAndUpdate(
-              { _id: val.product },
-              {
-                quantity: qty,
-              },
-              { new: true }
+                { _id: val.product },
+                { quantity: qty },
+                { new: true }
             );
 
-            if (coupon != "") {
-              // update coupon
+            if (coupon) {
+                const availed = CouponExists.availed + 1;
+                const unCollected = CouponExists.unCollected - 1;
 
-              const availed = CouponExists.availed + 1;
-              const unCollected = CouponExists.unCollected - 1;
+                await Coupon.findOneAndUpdate(
+                    { _id: coupon },
+                    { availed, unCollected },
+                    { new: true }
+                );
 
-              const updatedCoupon = await Coupon.findOneAndUpdate(
-                { _id: coupon },
-                {
-                  availed,
-                  unCollected,
-                },
-                { new: true }
-              );
-
-              const updatedWallet = await Wallet.findOneAndUpdate(
-                { coupon: coupon },
-                {
-                  availed: true,
-                },
-                { new: true }
-              );
+                await Wallet.findOneAndUpdate(
+                    { coupon: coupon },
+                    { availed: true },
+                    { new: true }
+                );
             }
-            let orderData;
+        }));
+        let orderData ;
+        if(coupon != ''){
+          orderData = {
+            user: cartExists.user,
+            company: cartExists.company,
+            products: cartExists.products,
+            address: cartExists.address,
+            totalAmount: cartExists.totalAmount,
+            city: cartExists.city,
+            postalCode: cartExists.postalCode,
+            coupon,
+            discountedPrice,
+            orderID,
+            cardNo,
+        };
+        }else{
+          orderData = {
+            user: cartExists.user,
+            company: cartExists.company,
+            products: cartExists.products,
+            address: cartExists.address,
+            totalAmount: cartExists.totalAmount,
+            city: cartExists.city,
+            postalCode: cartExists.postalCode,
+            discountedPrice,
+            orderID,
+            cardNo,
+        };
+        }
+        
 
-            if (coupon != "") {
-              orderData = {
-                user: cartExists.user,
-                company: cartExists.company,
-                products: cartExists.products,
-                address: cartExists.address,
-                totalAmount: cartExists.totalAmount,
-                city: cartExists.city,
-                postalCode: cartExists.postalCode,
-                coupon,
-                discountedPrice,
-                orderID,
-                cardNo,
-              };
-            } else {
-              orderData = {
-                user: cartExists.user,
-                company: cartExists.company,
-                products: cartExists.products,
-                address: cartExists.address,
-                totalAmount: cartExists.totalAmount,
-                city: cartExists.city,
-                postalCode: cartExists.postalCode,
-                discountedPrice,
-                orderID,
-                cardNo,
-              };
-            }
+        let order = new Order(orderData);
 
-            let order = new Order(orderData);
+        const CartDeleted = await Cart.findOneAndDelete({ user });
 
-            const CartDeleted = await Cart.findOneAndDelete({
-              user,
-            });
+        await order.save();
 
-            // save order
-
-            order.save((error, addNewOrder) => {
-              if (error) {
-                return res.status(500).send({
-                  success: false,
-                  error: error.message,
-                });
-              }
-              res.status(200).send({
-                success: true,
-                data: {
-                  message: "new order added successfully",
-                },
-              });
-            });
-          } else {
-            return res.status(400).send({
-              success: false,
-              data: {
-                error: `${ProductExist.name} are only ${ProductExist.quantity} in stock`,
-              },
-            });
-          }
+        return res.status(200).send({
+            success: true,
+            data: {
+                message: "new order added successfully",
+            },
         });
-      } else {
-        // empty cart
-        return res.status(400).send({
-          success: false,
-          data: {
-            error: "First add something in cart to order it",
-          },
-        });
-      }
     } catch (error) {
-      // Handle any unexpected errors
-      console.log(error);
-      return res.status(500).send({
-        success: false,
-        error: "Internal server error",
-      });
+        console.log(error);
+        return res.status(500).send({
+            success: false,
+            error: "Internal server error",
+        });
     }
-  },
+},
 
   // api to apply coupon
   async checkValidCoupon(req, res) {

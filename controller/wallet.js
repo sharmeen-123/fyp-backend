@@ -67,13 +67,28 @@ const WalletController = {
         select: 'name expiry discount'// Selecting only the 'name' field
       }).populate({
         path:"company",
-      select: 'name, image'});
+      select: 'companyName, image'});
+
+      let wallet = []
 
       let availed = 0;
       data.map((val, ind)=> {
         if(val.availed == true){
           availed += 1
         }
+        let obj = {
+          id: val._id,
+          availed: val.availed,
+          couponId: val.coupon._id,
+          couponName: val.coupon.name,
+          couponexpiry: val.coupon.expiry,
+          couponDiscount: val.coupon.discount,
+          companyId: val.company._id,
+          companyName: val.company.companyName,
+          companyImage: val.company.image,
+          collectedAt: val.collectedAt
+        }
+        wallet.push(obj)
       });
 
       if (data.length > 0) {
@@ -83,7 +98,7 @@ const WalletController = {
             message: "Wallet Found",
             Collected: data.length,
             Availed: availed,
-            coupons: data,
+            wallet: wallet,
           }
           
         });

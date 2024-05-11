@@ -55,6 +55,7 @@ function initSocket(io) {
           chats.push({
             user_id: user._id,
             name: user.name,
+            companyName: user.companyName,
             image: user.image,
             chat: lastChat[lastChat.length - 1].message,
             date: lastChat[lastChat.length - 1].date,
@@ -110,6 +111,7 @@ function initSocket(io) {
             chats.push({
               user_id: user._id,
               name: user.name,
+              companyName: user.companyName,
               image: user.image,
               chat: lastChat[lastChat.length - 1].message,
               date: lastChat[lastChat.length - 1].date,
