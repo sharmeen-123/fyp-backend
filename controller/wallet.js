@@ -66,8 +66,7 @@ const WalletController = {
         path: "coupon",
         select: 'name expiry discount'// Selecting only the 'name' field
       }).populate({
-        path:"company",
-      select: 'companyName, image'});
+        path:"company"});
 
       let wallet = []
 
