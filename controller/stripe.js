@@ -1,5 +1,8 @@
+const dotenv = require("dotenv");
+dotenv.config();
+
 const stripe = require("stripe")(
-  "sk_test_51OvIPTFwZYAVAKRZNOMZbMhurTnF1DD31Hu1RM844WzfK6Wk14zuysHuAFrn0ODOXQJzZ7mgJ1pKkVtWIIW7ilgK007naNI5D9"
+    process.env.STRIPE_KEY
 );
 const PaymentMethod = require("../models/paymentMethod");
 
@@ -7,6 +10,7 @@ const StripeController = {
   async createPayment(req, res, next) {
       try {
           const id = req.body.card;
+          const {success_url, cancel_url} = req.body
           if (id) {
               const paymentMethodd = await PaymentMethod.findById(id);
               if (!paymentMethodd) {
@@ -26,11 +30,9 @@ const StripeController = {
                       quantity: 1,
                   }],
                   mode: "payment",
-                  success_url: "http://localhost:3000/company/coupon",
-                  cancel_url: "http://localhost:3000/company/distributeCoupon",
+                  success_url: success_url,
+                  cancel_url: cancel_url,
               });
-
-              console.log("url is", session.url)
               
               // res.redirect(303, session.url);
 
@@ -40,7 +42,6 @@ const StripeController = {
                   url: session.url
               });
 
-              // res.redirect(303, session.url);
           } else {
               throw new Error("Card ID not provided");
           }
