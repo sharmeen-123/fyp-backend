@@ -157,13 +157,13 @@ const CouponController = {
         },
       })
         .populate("company")
-        .populate({ path: "model", select: "name image" })
+        .populate({ path: "model"})
         .sort({ issueDate: -1 });
 
       let coupons = [];
-      data.map((val, ind) => {
+      data?.map((val, ind) => {
         val.locations.map((val2, ind2) => {
-          if (val2.collected == false) {
+          if (val2.collected == false && val.model != null) {
             let coupon = {
               id: val._id,
               company: val.company._id,
@@ -171,9 +171,9 @@ const CouponController = {
               discount: val.discount,
               issueDate: val.issueDate,
               expiry: val.expiry,
-              name: val.name,
-              modelName: val.model.name,
-              model: val.model.image,
+              name: val.name.name,
+              modelName: val.model.image,
+              model: val.model,
               lat: val2.lat,
               lng: val2.lng,
             };
@@ -199,6 +199,7 @@ const CouponController = {
         });
       }
     } catch (err) {
+      console.log(err)
       return res.status(500).send({
         success: false,
         data: { error: "Some Error Occurred" },
